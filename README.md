@@ -1,3 +1,5 @@
+[![](https://jitpack.io/v/Yumenokanata/AvocadoViews.svg)](https://jitpack.io/#Yumenokanata/AvocadoViews)
+
 # AvocadoViews
 一个小自定义控件的小集合，整合了以往项目中比较具有通用性的小自定义控件
 
