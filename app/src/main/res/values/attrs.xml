@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="DateSelectPicker">
+        <attr name="dsp_hideArrow" format="boolean"/>
+        <attr name="dsp_arrowImg" format="reference"/>
+        <attr name="dsp_arrowWidth" format="dimension"/>
+        <attr name="dsp_arrowHeight" format="dimension"/>
+        <attr name="dsp_arrowMarginStart" format="dimension"/>
+        <attr name="dsp_arrowMarginEnd" format="dimension"/>
+
+        <attr name="dsp_hintTextColor" format="color"/>
+        <attr name="dsp_hintText" format="string"/>
+
+        <attr name="dsp_textColor" format="color"/>
+        <attr name="dsp_textSize" format="dimension"/>
+        <attr name="dsp_textViewWidth" format="dimension"/>
+        <attr name="dsp_textViewHeight" format="dimension"/>
+
+        <attr name="dsp_postfix" format="string"/>
+
+        <attr name="dsp_underlineHeight" format="dimension"/>
+        <attr name="dsp_underlineColor" format="color"/>
+        <attr name="dsp_hideUnderline" format="boolean"/>
+        <attr name="dsp_underlineMarginTop" format="dimension"/>
+
+        <attr name="dsp_viewWidth" format="dimension"/>
+
+        <attr name="dsp_showMode" format="enum">
+            <enum name="ymd" value="1"/>
+            <enum name="ym" value="2"/>
+        </attr>
+    </declare-styleable>
+</resources>

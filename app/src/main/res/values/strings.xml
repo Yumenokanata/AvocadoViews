@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">AvocadoViews</string>
+
+    <string name="dialog_button_cancel">Cancel</string>
+    <string name="dialog_button_ok">OK</string>
+    <string name="dialog_button_delete">Delete</string>
+    <string name="dialog_button_save">Save</string>
+
+    <!--DateSelectPickerDialog Start-->
+    <string name="year_unit">年</string>
+    <string name="month_unit">月</string>
+    <string name="day_unit">日</string>
+    <!--DateSelectPickerDialog End-->
+</resources>

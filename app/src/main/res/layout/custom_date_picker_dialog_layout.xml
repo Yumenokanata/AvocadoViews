@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="start"
+    android:background="@color/color_gr7"
+    android:paddingTop="8dp" >
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <LinearLayout
+            android:layout_marginRight="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <biz.kasual.materialnumberpicker.MaterialNumberPicker
+                style="@style/date_select_dialog_number_picker"
+                android:id="@+id/year_num_picker"
+                android:layout_marginEnd="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <biz.kasual.materialnumberpicker.MaterialNumberPicker
+                style="@style/date_select_dialog_number_picker"
+                android:id="@+id/month_num_picker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+
+            <biz.kasual.materialnumberpicker.MaterialNumberPicker
+                style="@style/date_select_dialog_number_picker"
+                android:id="@+id/day_num_picker"
+                android:layout_marginStart="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+    </FrameLayout>
+
+    <LinearLayout
+        style="?attr/buttonBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp" >
+
+        <TextView
+            style="?attr/buttonBarNegativeButtonStyle"
+            android:id="@+id/dialog_cancel_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="@string/dialog_button_cancel"
+            android:textColor="@color/color_re1" />
+
+        <TextView
+            style="?attr/buttonBarPositiveButtonStyle"
+            android:id="@+id/dialog_ok_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="@string/dialog_button_ok"
+            android:textColor="@color/color_re1" />
+
+    </LinearLayout>
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+    </RadioGroup>
+</LinearLayout>
