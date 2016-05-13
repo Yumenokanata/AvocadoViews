@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/footer_linealayout"
+    android:id="@+id/error_linealayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="10dp"
-        tools:text="公開中の求人は０件です"
+        tools:text="Loading Has Error"
         android:textColor="@color/color_gr2"
         android:textSize="23sp" />
 
@@ -30,17 +30,18 @@
         android:layout_marginTop="15dp"
         android:gravity="center"
         android:lines="2"
-        tools:text="検索条件を変えて\nもう一度お試しください"
+        tools:text="Try again"
         android:textColor="@color/color_gr2"
         android:textSize="15sp" />
 
     <Button
         android:layout_marginBottom="20dp"
-        android:id="@+id/changecondition_button"
+        android:id="@+id/refresh_button"
         android:layout_width="260dp"
         android:layout_height="48dp"
         android:layout_gravity="center"
         android:layout_marginTop="38dp"
-        tools:text="検索条件を変更"
+        android:textAllCaps="false"
+        tools:text="Reload"
         android:textSize="14sp" />
 </LinearLayout>

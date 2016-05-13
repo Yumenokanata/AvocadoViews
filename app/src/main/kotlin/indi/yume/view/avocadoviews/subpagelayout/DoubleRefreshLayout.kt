@@ -42,6 +42,15 @@ class DoubleRefreshLayout(context: Context?, attrs: AttributeSet?) : FrameLayout
 
     private lateinit var loadMoreViewHolder: LoadMoreViewHolder
 
+    private lateinit var listAdapter: SubPageAdapter<out Any>
+
+    private var loadMoreSub: Subscription? = null
+
+    val onNextListener: ((List<Any>) -> Unit)? = null
+    val onErrorListener: ((Throwable) -> Unit)? = null
+
+    private var isLoading = false
+
     var onDoubleRefreshViewHolder: OnDoubleRefreshViewHolder? = null
         set(value) {
             if(value == null) return
@@ -61,19 +70,11 @@ class DoubleRefreshLayout(context: Context?, attrs: AttributeSet?) : FrameLayout
             field = value
         }
 
-    private lateinit var listAdapter: SubPageAdapter<out Any>
-
-    private var loadMoreSub: Subscription? = null
-
-    val onNextListener: ((List<Any>) -> Unit)? = null
-    val onErrorListener: ((Throwable) -> Unit)? = null
-
     private var canLoadMoreFlag = true
         set(value) {
             field = value
             loadMoreViewHolder.enableLoadMore(value)
         }
-    private var isLoading = false
 
     private val onLoadOverSub = object : Subscriber<List<Any>>() {
         override fun onCompleted() {

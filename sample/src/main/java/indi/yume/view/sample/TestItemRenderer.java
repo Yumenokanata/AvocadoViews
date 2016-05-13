@@ -17,7 +17,7 @@ import indi.yume.tools.adapter_renderer.ContextAware;
  *
  * @author xuemao.tang
  */
-public class SearchResultJobsItemType1Renderer extends BaseRenderer<String> implements ContextAware {
+public class TestItemRenderer extends BaseRenderer<String> implements ContextAware {
     @Bind(R.id.company_name_textview)
     TextView companyNameTv;
     @Bind(R.id.item_keep_btn)
