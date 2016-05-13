@@ -1,25 +1,22 @@
 package indi.yume.view.sample;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-
-import com.google.common.base.Joiner;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import android.view.View;
+import android.widget.Button;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import indi.yume.view.avocadoviews.dataselect.DateSelectPicker;
-import indi.yume.view.avocadoviews.subpagelayout.SubPageUtil;
-import kotlin.jvm.functions.Function1;
-import rx.Observable;
+import indi.yume.view.avocadoviews.subpagelayout.DoubleRefreshLayout;
 
 public class MainActivity extends AppCompatActivity {
 
     @Bind(R.id.date_select_picker)
     DateSelectPicker dateSelectPicker;
+    @Bind(R.id.jump_to_refresh_button)
+    Button jumpToRefreshButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,20 +24,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        SubPageUtil<String> subPageUtil = new SubPageUtil<>(pageNum -> {
-            List<String> data = new ArrayList<>();
-            for(int i = 0; i < 10; i++)
-                data.add(String.format("%d%d%d", pageNum, pageNum, pageNum));
-            return Observable.just(data).delay(2, TimeUnit.SECONDS);
-        });
-        subPageUtil.setDoForEveryPageData(new Function1<List<? extends String>, List<? extends String>>() {
-            @Override
-            public List<? extends String> invoke(List<? extends String> strings) {
-                List<String> list = new ArrayList<>(strings);
-                list.add("2222");
-                return list;
-            }
-        });
-        subPageUtil.refreshPageData().subscribe(list -> System.out.println(Joiner.on(", ").join(list)));
+        jumpToRefreshButton.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, DoubleRefreshActivity.class)));
     }
 }

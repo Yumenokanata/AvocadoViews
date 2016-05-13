@@ -52,7 +52,7 @@ class DoubleRefreshLayout(context: Context?, attrs: AttributeSet?) : FrameLayout
             field = value
         }
 
-    private var headerView: View? = null
+    var headerView: View? = null
         set(value) {
             if (field != null)
                 listView.removeHeaderView(field)
@@ -61,7 +61,7 @@ class DoubleRefreshLayout(context: Context?, attrs: AttributeSet?) : FrameLayout
             field = value
         }
 
-    private lateinit var listAdapter: SubPageAdapter<Any>
+    private lateinit var listAdapter: SubPageAdapter<out Any>
 
     private var loadMoreSub: Subscription? = null
 
@@ -133,7 +133,7 @@ class DoubleRefreshLayout(context: Context?, attrs: AttributeSet?) : FrameLayout
 
      * @param listAdapter provide sub page data and list view's adapter.
      */
-    fun initData(listAdapter: SubPageAdapter<Any>) {
+    fun initData(listAdapter: SubPageAdapter<out Any>) {
         this.listAdapter = listAdapter
         listView.adapter = listAdapter.listAdapter
 
@@ -242,24 +242,29 @@ class DoubleRefreshLayout(context: Context?, attrs: AttributeSet?) : FrameLayout
     }
 
     private fun switchStopContentView(sumListData: List<Any>?) {
-        doOnDataIsEmpty(sumListData) { showNoContentView() }
+        if (sumListData == null || sumListData.isEmpty()) {
+            showNoContentView()
+        } else {
+            swipeRefreshLayout.isRefreshing = false
+            showListView()
+        }
     }
 
     private fun switchStopContentView() {
-        doOnDataIsEmpty(listAdapter.listAdapter.contentList) { showNoContentView() }
+        if (listAdapter.listAdapter.count == 0) {
+            showNoContentView()
+        } else {
+            swipeRefreshLayout.isRefreshing = false
+            showListView()
+        }
     }
 
     private fun switchRefreshContentView() {
-        doOnDataIsEmpty(listAdapter.listAdapter.contentList) { showNoContentLoadProgress() }
-    }
-
-    private fun doOnDataIsEmpty(sumListData: List<Any>?,
-                                action: DoubleRefreshLayout.() -> Unit) {
-        if (sumListData == null || sumListData.isEmpty()) {
-            action()
+        if (listAdapter.listAdapter.count == 0) {
+            showNoContentLoadProgress()
         } else {
-            swipeRefreshLayout.isRefreshing = true
             showListView()
+            swipeRefreshLayout.isRefreshing = true
         }
     }
 }
