@@ -15,7 +15,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".DoubleRefreshActivity"></activity>
+        <activity android:name=".DoubleRefreshActivity" />
+        <activity android:name=".RecyclerRefreshActivity"></activity>
     </application>
 
 </manifest>

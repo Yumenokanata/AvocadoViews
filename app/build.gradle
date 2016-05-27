@@ -62,7 +62,7 @@ dependencies {
     compile 'io.reactivex:rxkotlin:0.55.0'
 
     compile 'com.github.Yumenokanata:Avocado:1.0'
-    compile 'com.github.Yumenokanata:AdapterRenderer:2.1.1'
+    compile 'com.github.Yumenokanata:AdapterRenderer:2.2b'
 
     apt "org.projectlombok:lombok:1.16.6"
     provided "org.projectlombok:lombok:1.16.6"

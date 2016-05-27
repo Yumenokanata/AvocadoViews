@@ -3,6 +3,7 @@ package indi.yume.view.sample;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,29 +18,28 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import indi.yume.tools.adapter_renderer.RendererAdapter;
-import indi.yume.view.avocadoviews.subpagelayout.DoubleRefreshLayout;
-import indi.yume.view.avocadoviews.subpagelayout.NoMoreDataException;
-import indi.yume.view.avocadoviews.subpagelayout.OnDoubleRefreshViewHolder;
-import indi.yume.view.avocadoviews.subpagelayout.SubPageAdapter;
+import indi.yume.tools.adapter_renderer.recycler.RendererAdapter;
+import indi.yume.view.avocadoviews.recyclerlayout.DoubleRefreshRecyclerLayout;
+import indi.yume.view.avocadoviews.recyclerlayout.NoMoreDataException;
+import indi.yume.view.avocadoviews.recyclerlayout.OnDoubleRefreshViewHolder;
+import indi.yume.view.avocadoviews.recyclerlayout.SubPageAdapter;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
-public class DoubleRefreshActivity extends AppCompatActivity {
-    private int itemNum = 1;
+public class RecyclerRefreshActivity extends AppCompatActivity {
 
-    @Bind(R.id.double_refresh_layout)
-    DoubleRefreshLayout doubleRefreshLayout;
+    @Bind(R.id.recycler_view_layout)
+    DoubleRefreshRecyclerLayout recyclerViewLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_double_refresh);
+        setContentView(R.layout.activity_recycler_refresh);
         ButterKnife.bind(this);
 
-        doubleRefreshLayout.setOnDoubleRefreshViewHolder(new RefreshViewHolder(this, doubleRefreshLayout));
+        recyclerViewLayout.setOnDoubleRefreshViewHolder(new RefreshViewHolder(RecyclerRefreshActivity.this, recyclerViewLayout));
 
-        RendererAdapter<String> rendererAdapter = new RendererAdapter<>(new ArrayList<>(), this, TestItemRenderer.class);
+        RendererAdapter<String> rendererAdapter = new RendererAdapter<>(new ArrayList<>(), this, TestRecyclerRenderer.class);
         SubPageAdapter<String> adapter = new SubPageAdapter<>(rendererAdapter,
                 pageNum -> {
                     if(pageNum >= 4)
@@ -52,7 +52,7 @@ public class DoubleRefreshActivity extends AppCompatActivity {
                                 .subscribeOn(Schedulers.io());
                 });
 
-        doubleRefreshLayout.initData(adapter);
+        recyclerViewLayout.initData(adapter, new LinearLayoutManager(this));
     }
 
     private List<String> provideTestData(int pageNum) {
@@ -76,7 +76,7 @@ public class DoubleRefreshActivity extends AppCompatActivity {
             view = LayoutInflater.from(context).inflate(R.layout.listview_load_error_layout, parent, false);
             ButterKnife.bind(this, view);
 
-            refreshButton.setOnClickListener(v -> doubleRefreshLayout.refreshData());
+            refreshButton.setOnClickListener(v -> recyclerViewLayout.refreshData());
         }
 
         @NotNull
