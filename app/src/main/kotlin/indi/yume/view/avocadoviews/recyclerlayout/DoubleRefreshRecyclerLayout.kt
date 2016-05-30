@@ -159,6 +159,8 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
         switchStopContentView()
     }
 
+    fun getSubPageAdapter() = listAdapter
+
     private fun checkLoadMoreViewCanSee(recyclerView: RecyclerView,
                                         adapter: RendererAdapter<out Any>,
                                         loadMoreView: LoadMoreViewHolder): Boolean =
