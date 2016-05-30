@@ -14,6 +14,7 @@ import android.widget.FrameLayout
 import com.jakewharton.rxbinding.widget.AdapterViewItemClickEvent
 import com.jakewharton.rxbinding.widget.RxAdapterView
 import indi.yume.tools.adapter_renderer.recycler.OnItemClickListener
+import indi.yume.tools.adapter_renderer.recycler.RendererAdapter
 import indi.yume.tools.avocado.util.LogUtil
 import indi.yume.view.avocadoviews.R
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar
@@ -85,6 +86,8 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
 
         override fun onNext(list: List<Any>) {
             switchStopContentView(list)
+            if(checkLoadMoreViewCanSee(listView, listAdapter.listAdapter, loadMoreViewHolder))
+                loadMoreViewHolder.stopLoadMore()
 
             isLoading = false
 
@@ -138,23 +141,31 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
     fun initData(listAdapter: SubPageAdapter<out Any>) {
         this.listAdapter = listAdapter
         listView.adapter = listAdapter.listAdapter
+        listAdapter.listAdapter.notifyDataSetChanged()
 
         swipeRefreshLayout.setOnRefreshListener { this.refreshData() }
         listView.onScrollListener {
             onScrollStateChanged { listViewTemp, scrollState ->
-                if (canLoadMoreFlag)
+                if (canLoadMoreFlag && listAdapter.listAdapter.contentLength != 0)
                     loadMoreViewHolder.startLoadMore()
 
                 if (canLoadMoreFlag && !isLoading && scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE)
-                    if((0..listAdapter.listAdapter.footerViewCount - 1)
-                            .map { listView.childCount - it - 1 }
-                            .map { listView.getChildAt(it) }
-                            .any { it === loadMoreViewHolder.view })
+                    if(checkLoadMoreViewCanSee(listView, listAdapter.listAdapter, loadMoreViewHolder))
                         loadData()
             }
         }
         setLoadMoreView(loadMoreViewHolder)
+        loadMoreViewHolder.stopLoadMore()
+        switchStopContentView()
     }
+
+    private fun checkLoadMoreViewCanSee(recyclerView: RecyclerView,
+                                        adapter: RendererAdapter<out Any>,
+                                        loadMoreView: LoadMoreViewHolder): Boolean =
+            (0..adapter.footerViewCount - 1)
+                    .map { recyclerView.childCount - it - 1 }
+                    .map { recyclerView.getChildAt(it) }
+                    .any { it === loadMoreView.view }
 
     fun stopLoad() {
         loadMoreSub?.unsubscribe()
@@ -216,19 +227,29 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
 
     private fun showNoContentView() {
         noContentLoadProgressView.visibility = View.INVISIBLE
-        swipeRefreshLayout.visibility = View.INVISIBLE
-        listView.visibility = View.INVISIBLE
 
-        onDoubleRefreshViewHolder?.onNoContents()
+        if(onDoubleRefreshViewHolder != null) {
+            swipeRefreshLayout.visibility = View.INVISIBLE
+            listView.visibility = View.INVISIBLE
+            onDoubleRefreshViewHolder!!.onNoContents()
+        } else {
+            swipeRefreshLayout.visibility = View.VISIBLE
+            listView.visibility = View.VISIBLE
+        }
     }
 
     private fun showNetworkErrorView() {
         noContentLoadProgressView.visibility = View.INVISIBLE
         swipeRefreshLayout.isRefreshing = false
-        swipeRefreshLayout.visibility = View.INVISIBLE
-        listView.visibility = View.INVISIBLE
 
-        onDoubleRefreshViewHolder?.onNotReachability()
+        if(onDoubleRefreshViewHolder != null) {
+            swipeRefreshLayout.visibility = View.INVISIBLE
+            listView.visibility = View.INVISIBLE
+            onDoubleRefreshViewHolder!!.onNotReachability()
+        } else {
+            swipeRefreshLayout.visibility = View.VISIBLE
+            listView.visibility = View.VISIBLE
+        }
     }
 
     private fun showListView() {

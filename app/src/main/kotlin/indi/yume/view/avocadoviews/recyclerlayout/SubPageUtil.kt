@@ -9,9 +9,10 @@ import java.util.*
  */
 class SubPageUtil<T>(private val provideObservable: (Int) -> Observable<List<T>>,
                      initData: List<T> = Collections.emptyList(),
-                     private val firstPageNum: Int = 1) {
-    private var cachePageData: List<T> = initData;
-    private var pageNum: Int = firstPageNum - 1;
+                     initPageNum: Int = 1,
+                     val firstPageNum: Int = 1) {
+    internal var cachePageData: List<T> = initData;
+    private var pageNum: Int = Math.max(initPageNum, firstPageNum - 1);
 
     var doForEveryPageData: ((List<T>) -> List<T>)? = { it }
 
@@ -20,6 +21,13 @@ class SubPageUtil<T>(private val provideObservable: (Int) -> Observable<List<T>>
     constructor(provideObservable: (Int) -> Observable<List<T>>,
                 firstPageNum: Int)
     : this(provideObservable, Collections.emptyList(), firstPageNum)
+
+    constructor(provideObservable: (Int) -> Observable<List<T>>,
+                initData: List<T> = Collections.emptyList(),
+                initPageNum: Int = 1)
+    : this(provideObservable, initData, initPageNum, 1)
+
+    fun getPageNum() = pageNum
 
     fun loadNextPage(): Observable<List<T>> =
             provideObservable(pageNum + 1)
