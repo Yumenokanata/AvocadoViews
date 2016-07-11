@@ -23,7 +23,7 @@ android {
     buildToolsVersion "23.0.3"
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 15
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -61,7 +61,7 @@ dependencies {
     compile 'com.jakewharton.rxbinding:rxbinding-support-v4:0.3.0'
     compile 'io.reactivex:rxkotlin:0.55.0'
 
-    compile 'com.github.Yumenokanata:Avocado:1.0'
+    compile 'com.github.Yumenokanata:Avocado:1.1'
     compile 'com.github.Yumenokanata:AdapterRenderer:2.2b'
 
     apt "org.projectlombok:lombok:1.16.6"
