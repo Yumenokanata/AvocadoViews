@@ -17,6 +17,8 @@ public class MainActivity extends AppCompatActivity {
     Button jumpToRefreshButton;
     @Bind(R.id.jump_to_recycler_button)
     Button jumpToRecyclerButton;
+    @Bind(R.id.jump_to_loading_button)
+    Button jumpToLoadingButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,5 +28,6 @@ public class MainActivity extends AppCompatActivity {
 
         jumpToRefreshButton.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, DoubleRefreshActivity.class)));
         jumpToRecyclerButton.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, RecyclerRefreshActivity.class)));
+        jumpToLoadingButton.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, LoadingActivity.class)));
     }
 }

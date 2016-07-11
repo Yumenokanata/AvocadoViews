@@ -50,7 +50,7 @@ public class RecyclerRefreshActivity extends AppCompatActivity {
         List<String> list = savedInstanceState == null ? new ArrayList<>() : savedInstanceState.getStringArrayList(SAVE_KEY_ARRAY);
         if(list == null)
             list = new ArrayList<>();
-        int initPageNum = savedInstanceState == null ? 1 : savedInstanceState.getInt(SAVE_KEY_INDEX, 1);
+        int initPageNum = savedInstanceState == null ? 0 : savedInstanceState.getInt(SAVE_KEY_INDEX, 0);
 
         System.out.println("init list num: " + Stream.of(list).collect(Collectors.joining(", ", "[", "]")));
         System.out.println("init page num: " + initPageNum);

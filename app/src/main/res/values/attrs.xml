@@ -30,4 +30,22 @@
             <enum name="ym" value="2"/>
         </attr>
     </declare-styleable>
+
+    <declare-styleable name="LoadingLayout">
+        <attr name="ll_emptyView" format="reference"/>
+        <attr name="ll_errorView" format="reference"/>
+        <attr name="ll_loadingView" format="reference"/>
+        <attr name="ll_defaultShowMode" format="enum">
+            <enum name="content" value="0"/>
+            <enum name="empty" value="1"/>
+            <enum name="error" value="2"/>
+            <enum name="loading" value="3"/>
+        </attr>
+        <attr name="ll_toolShowMode" format="enum">
+            <enum name="content" value="0"/>
+            <enum name="empty" value="1"/>
+            <enum name="error" value="2"/>
+            <enum name="loading" value="3"/>
+        </attr>
+    </declare-styleable>
 </resources>

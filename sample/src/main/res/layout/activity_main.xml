@@ -26,6 +26,13 @@
         android:textAllCaps="false"
         android:text="Jump to RecyclerRefresh"/>
 
+    <Button
+        android:id="@+id/jump_to_loading_button"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        android:text="Jump to LoadingLayout"/>
+
     <com.google.android.flexbox.FlexboxLayout
         android:layout_width="match_parent"
         android:layout_height="300dp"

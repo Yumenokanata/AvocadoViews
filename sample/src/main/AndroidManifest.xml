@@ -16,7 +16,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".DoubleRefreshActivity" />
-        <activity android:name=".RecyclerRefreshActivity"></activity>
+        <activity android:name=".RecyclerRefreshActivity" />
+        <activity android:name=".LoadingActivity"></activity>
     </application>
 
 </manifest>
