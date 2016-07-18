@@ -40,9 +40,10 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':app')
-    compile 'com.android.support:design:23.4.0'
-
     compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.android.support:design:23.4.0'
+    compile 'com.android.support:support-annotations:23.4.0'
+
     compile 'com.github.Yumenokanata:AdapterRenderer:2.1.1'
     compile 'com.google.android:flexbox:0.1.2'
     compile 'com.jakewharton:butterknife:7.0.1'

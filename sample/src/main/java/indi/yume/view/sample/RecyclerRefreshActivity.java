@@ -4,12 +4,13 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
@@ -22,12 +23,14 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import indi.yume.tools.adapter_renderer.recycler.RendererAdapter;
 import indi.yume.view.avocadoviews.recyclerlayout.DoubleRefreshRecyclerLayout;
+import indi.yume.view.avocadoviews.recyclerlayout.LoadMoreStatus;
+import indi.yume.view.avocadoviews.recyclerlayout.LoadMoreViewHolder;
 import indi.yume.view.avocadoviews.recyclerlayout.NoMoreDataException;
 import indi.yume.view.avocadoviews.recyclerlayout.OnDoubleRefreshViewHolder;
 import indi.yume.view.avocadoviews.recyclerlayout.SubPageAdapter;
-import indi.yume.view.avocadoviews.recyclerlayout.SubPageUtil;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
@@ -48,7 +51,7 @@ public class RecyclerRefreshActivity extends AppCompatActivity {
 
 //        recyclerViewLayout.setOnDoubleRefreshViewHolder(new RefreshViewHolder(RecyclerRefreshActivity.this, recyclerViewLayout));
         List<String> list = savedInstanceState == null ? new ArrayList<>() : savedInstanceState.getStringArrayList(SAVE_KEY_ARRAY);
-        if(list == null)
+        if (list == null)
             list = new ArrayList<>();
         int initPageNum = savedInstanceState == null ? 0 : savedInstanceState.getInt(SAVE_KEY_INDEX, 0);
 
@@ -60,7 +63,7 @@ public class RecyclerRefreshActivity extends AppCompatActivity {
                 initPageNum,
                 pageNum -> {
                     System.out.println("load page num: " + pageNum);
-                    if(pageNum > 4)
+                    if (pageNum > 4)
                         return Observable.<List<String>>error(new NoMoreDataException())
                                 .delay(2000, TimeUnit.MILLISECONDS)
                                 .subscribeOn(Schedulers.io());
@@ -71,6 +74,9 @@ public class RecyclerRefreshActivity extends AppCompatActivity {
                 });
 
         recyclerViewLayout.initData(adapter, new GridLayoutManager(this, 2));
+//        recyclerViewLayout.setLoadMoreView(new ViewHolder(recyclerViewLayout));
+//        recyclerViewLayout.setAutoLoadMore(false);
+//        recyclerViewLayout.setEnableLoadMore(false);
 //        if(savedInstanceState == null)
 //            recyclerViewLayout.refreshData();
     }
@@ -131,6 +137,50 @@ public class RecyclerRefreshActivity extends AppCompatActivity {
         @Override
         public void onReachability() {
             view.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    class ViewHolder implements LoadMoreViewHolder {
+        @Bind(R.id.load_more_text_view)
+        TextView loadMoreTextView;
+        @Bind(R.id.load_more_progress_bar)
+        ProgressBar loadMoreProgressBar;
+
+        private final View view;
+
+        ViewHolder(ViewGroup viewGroup) {
+            view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.load_more_layout, viewGroup, false);
+            ButterKnife.bind(this, view);
+        }
+
+        @NotNull
+        @Override
+        public View getView() {
+            return view;
+        }
+
+        @Override
+        public void stateChange(@NotNull LoadMoreStatus oldStatus, @NotNull LoadMoreStatus newStatus) {
+            System.out.println(newStatus);
+
+            if (newStatus == LoadMoreStatus.DISABLE) {
+                loadMoreTextView.setVisibility(View.GONE);
+                loadMoreProgressBar.setVisibility(View.GONE);
+            } else if (newStatus == LoadMoreStatus.SHOW) {
+                loadMoreTextView.setVisibility(View.VISIBLE);
+                loadMoreProgressBar.setVisibility(View.GONE);
+            } else if (newStatus == LoadMoreStatus.LOADING) {
+                loadMoreTextView.setVisibility(View.GONE);
+                loadMoreProgressBar.setVisibility(View.VISIBLE);
+            } else if (newStatus == LoadMoreStatus.LOADOVER) {
+                loadMoreTextView.setVisibility(View.VISIBLE);
+                loadMoreProgressBar.setVisibility(View.GONE);
+            }
+        }
+
+        @OnClick(R.id.load_more_text_view)
+        public void onClick() {
+            recyclerViewLayout.loadData();
         }
     }
 }

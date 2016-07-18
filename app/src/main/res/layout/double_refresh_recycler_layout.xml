@@ -23,7 +23,7 @@
         android:id="@+id/no_content_load_progress_view"
         style="@style/Widget.MaterialProgressBar.ProgressBar"
         android:layout_width="match_parent"
-        android:layout_height="30dp"
+        android:layout_height="wrap_content"
         android:layout_centerInParent="true"/>
 
 </RelativeLayout>

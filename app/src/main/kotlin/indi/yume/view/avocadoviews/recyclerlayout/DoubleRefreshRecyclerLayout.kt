@@ -11,17 +11,13 @@ import android.view.ViewGroup
 import android.widget.AbsListView
 import android.widget.AdapterView
 import android.widget.FrameLayout
-import com.jakewharton.rxbinding.widget.AdapterViewItemClickEvent
-import com.jakewharton.rxbinding.widget.RxAdapterView
 import indi.yume.tools.adapter_renderer.recycler.OnItemClickListener
 import indi.yume.tools.adapter_renderer.recycler.RendererAdapter
 import indi.yume.tools.avocado.util.LogUtil
 import indi.yume.view.avocadoviews.R
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar
 import org.jetbrains.anko.find
-import org.jetbrains.anko.onScrollListener
 import org.jetbrains.anko.recyclerview.v7.onScrollListener
-import rx.Observable
 import rx.Subscriber
 import rx.Subscription
 import rx.functions.Action1
@@ -37,7 +33,7 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
     val swipeRefreshLayout: SwipeRefreshLayout by lazy { find<SwipeRefreshLayout>(R.id.swipy_layout) }
     val noContentLoadProgressView: MaterialProgressBar by lazy { find<MaterialProgressBar>(R.id.no_content_load_progress_view) }
 
-    private lateinit var loadMoreViewHolder: LoadMoreViewHolder
+    private lateinit var loadMoreData: LoadMoreData
 
     private lateinit var listAdapter: SubPageAdapter<out Any>
 
@@ -45,6 +41,14 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
 
     val onNextListener: ((List<Any>) -> Unit)? = null
     val onErrorListener: ((Throwable) -> Unit)? = null
+
+    var enableLoadMore = true
+        set(value) {
+            field = value
+            loadMoreData = loadMoreData.toStatus(if(value && listAdapter.listAdapter.contentLength != 0) LoadMoreStatus.SHOW else LoadMoreStatus.DISABLE)
+        }
+
+    var autoLoadMore = true
 
     private var isLoading = false
 
@@ -61,7 +65,7 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
     private var canLoadMoreFlag = true
         set(value) {
             field = value
-            loadMoreViewHolder.enableLoadMore(value)
+            loadMoreData = loadMoreData.toStatus(if(value) LoadMoreStatus.SHOW else LoadMoreStatus.DISABLE)
         }
 
     private val onLoadOverSub = object : Subscriber<List<Any>>() {
@@ -78,6 +82,7 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
 
             if (e is NoMoreDataException) {
                 canLoadMoreFlag = false
+                loadMoreData = loadMoreData.toStatus(LoadMoreStatus.DISABLE)
                 switchStopContentView()
             } else if (e is IOException) {
                 showNetworkErrorView()
@@ -86,8 +91,10 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
 
         override fun onNext(list: List<Any>) {
             switchStopContentView(list)
-            if(checkLoadMoreViewCanSee(listView, listAdapter.listAdapter, loadMoreViewHolder))
-                loadMoreViewHolder.stopLoadMore()
+            if (enableLoadMore && !autoLoadMore)
+                loadMoreData = loadMoreData.toStatus(LoadMoreStatus.LOADOVER)
+            else
+                loadMoreData = loadMoreData.toStatus(LoadMoreStatus.DISABLE)
 
             isLoading = false
 
@@ -101,18 +108,17 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
         swipeRefreshLayout.setColorSchemeResources(R.color.color_re1)
 
         listView.layoutManager = LinearLayoutManager(context)
-        loadMoreViewHolder = DefaultLoadMoreViewHolder(context!!, listView)
+        loadMoreData = LoadMoreData(DefaultLoadMoreViewHolder(context!!, listView), LoadMoreStatus.NONE)
 
         showNoContentView()
     }
 
     fun setLoadMoreView(loadMoreView: LoadMoreViewHolder) {
-        listAdapter.listAdapter.removeFooterView(loadMoreViewHolder.view)
+        listAdapter.listAdapter.removeFooterView(loadMoreData.loadMoreViewHolder.view)
 
         listAdapter.listAdapter.addFooterView(loadMoreView.view)
-        loadMoreView.enableLoadMore(canLoadMoreFlag)
-
-        loadMoreViewHolder = loadMoreView
+        loadMoreData = LoadMoreData(loadMoreView, LoadMoreStatus.NONE)
+                .toStatus(if(canLoadMoreFlag && listAdapter.listAdapter.contentLength != 0) LoadMoreStatus.SHOW else LoadMoreStatus.DISABLE)
     }
 
     fun enablePullDownRefresh(enable: Boolean) {
@@ -146,16 +152,23 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
         swipeRefreshLayout.setOnRefreshListener { this.refreshData() }
         listView.onScrollListener {
             onScrollStateChanged { listViewTemp, scrollState ->
-                if (canLoadMoreFlag && listAdapter.listAdapter.contentLength != 0)
-                    loadMoreViewHolder.startLoadMore()
+                if(!enableLoadMore)
+                    return@onScrollStateChanged
 
-                if (canLoadMoreFlag && !isLoading && scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE)
-                    if(checkLoadMoreViewCanSee(listView, listAdapter.listAdapter, loadMoreViewHolder))
+                if (canLoadMoreFlag && !isLoading && listAdapter.listAdapter.contentLength != 0)
+                    if(autoLoadMore) {
+                        loadMoreData = loadMoreData.toStatus(LoadMoreStatus.LOADING)
+                    } else {
+                        loadMoreData = loadMoreData.toStatus(LoadMoreStatus.SHOW)
+                    }
+
+                if (autoLoadMore && canLoadMoreFlag && !isLoading && scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE)
+                    if(checkLoadMoreViewCanSee(listView, listAdapter.listAdapter, loadMoreData.loadMoreViewHolder))
                         loadData()
             }
         }
-        setLoadMoreView(loadMoreViewHolder)
-        loadMoreViewHolder.stopLoadMore()
+        setLoadMoreView(loadMoreData.loadMoreViewHolder)
+        loadMoreData = loadMoreData.toStatus(LoadMoreStatus.DISABLE)
         switchStopContentView()
     }
 
@@ -177,10 +190,11 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
         stopLoad()
 
         canLoadMoreFlag = true
-        loadMoreViewHolder.stopLoadMore()
+        loadMoreData = loadMoreData.toStatus(LoadMoreStatus.DISABLE)
 
         isLoading = true
         loadMoreSub = listAdapter.refreshData()
+                .doOnNext({ if(enableLoadMore && !autoLoadMore) loadMoreData = loadMoreData.toStatus(LoadMoreStatus.SHOW) })
                 .subscribe(Action1<List<Any>> { onLoadOverSub.onNext(it) },
                         Action1<Throwable> { onLoadOverSub.onError(it) })
         switchRefreshContentView()
@@ -199,7 +213,7 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
         isLoading = true
         showListView()
         if (canLoadMoreFlag)
-            loadMoreViewHolder.startLoadMore()
+            loadMoreData = loadMoreData.toStatus(LoadMoreStatus.LOADING)
 
         loadMoreSub = listAdapter.loadMoreData()
                 .subscribe(Action1<List<Any>> { onLoadOverSub.onNext(it) },
@@ -284,6 +298,7 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
     private fun switchRefreshContentView() {
         if (listAdapter.listAdapter.contentLength == 0) {
             showNoContentLoadProgress()
+            swipeRefreshLayout.isRefreshing = false
         } else {
             showListView()
             swipeRefreshLayout.isRefreshing = true
@@ -291,35 +306,41 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
     }
 }
 
+enum class LoadMoreStatus{
+    NONE,
+    DISABLE,
+    SHOW,
+    LOADING,
+    LOADOVER
+}
+
+data class LoadMoreData(val loadMoreViewHolder: LoadMoreViewHolder, val status: LoadMoreStatus) {
+    fun map(f: (LoadMoreStatus) -> LoadMoreStatus): LoadMoreData = LoadMoreData(loadMoreViewHolder, f(status))
+    fun flatMap(f: (LoadMoreStatus) -> LoadMoreData): LoadMoreData = f(status)
+
+    fun toStatus(newStatus: LoadMoreStatus): LoadMoreData =
+        when(newStatus) {
+            status -> this
+            else -> { loadMoreViewHolder.stateChange(status, newStatus); map({ newStatus }) }
+        }
+}
+
 interface LoadMoreViewHolder {
     val view: View
 
-    fun startLoadMore()
-    fun stopLoadMore()
-    fun enableLoadMore(enable: Boolean)
+    fun stateChange(oldStatus: LoadMoreStatus, newStatus: LoadMoreStatus)
 }
 
 internal class DefaultLoadMoreViewHolder(context: Context, parent: ViewGroup) : LoadMoreViewHolder {
     override val view: View = LayoutInflater.from(context).inflate(R.layout.load_more_footer_layout, parent, false)
     private val loadingMoreView: MaterialProgressBar  = view.findViewById(R.id.loading_more_view) as MaterialProgressBar
 
-    private var enable = true
-
-    override fun startLoadMore() {
-        if (enable)
-            loadingMoreView.visibility = View.VISIBLE
-    }
-
-    override fun stopLoadMore() {
-        if (enable)
-            loadingMoreView.visibility = View.GONE
-    }
-
-    override fun enableLoadMore(enable: Boolean) {
-        this.enable = enable
-        if (!enable)
-            loadingMoreView.visibility = View.GONE
-        else
-            loadingMoreView.visibility = View.VISIBLE
+    override fun stateChange(oldStatus: LoadMoreStatus, newStatus: LoadMoreStatus) {
+        when(newStatus) {
+            LoadMoreStatus.SHOW -> loadingMoreView.visibility = View.GONE
+            LoadMoreStatus.DISABLE -> loadingMoreView.visibility = View.GONE
+            LoadMoreStatus.LOADING -> loadingMoreView.visibility = View.VISIBLE
+            LoadMoreStatus.LOADOVER -> loadingMoreView.visibility = View.GONE
+        }
     }
 }
