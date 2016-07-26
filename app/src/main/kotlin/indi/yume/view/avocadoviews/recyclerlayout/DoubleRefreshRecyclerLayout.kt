@@ -59,6 +59,7 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
             field?.apply { removeView(getView()) }
 
             addView(value.getView())
+            noContentLoadProgressView.visibility = View.INVISIBLE
             field = value
         }
 
@@ -234,28 +235,29 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
     }
 
     private fun showNoContentLoadProgress() {
-        noContentLoadProgressView.visibility = View.VISIBLE
         swipeRefreshLayout.visibility = View.INVISIBLE
         listView.visibility = View.INVISIBLE
 
-        onDoubleRefreshViewHolder?.onLoading()
+        if(onDoubleRefreshViewHolder != null) {
+            onDoubleRefreshViewHolder?.onLoading()
+        } else {
+            noContentLoadProgressView.visibility = View.VISIBLE
+        }
     }
 
     private fun showNoContentView() {
-        noContentLoadProgressView.visibility = View.INVISIBLE
-
         if(onDoubleRefreshViewHolder != null) {
             swipeRefreshLayout.visibility = View.INVISIBLE
             listView.visibility = View.INVISIBLE
             onDoubleRefreshViewHolder!!.onNoContents()
         } else {
+            noContentLoadProgressView.visibility = View.INVISIBLE
             swipeRefreshLayout.visibility = View.VISIBLE
             listView.visibility = View.VISIBLE
         }
     }
 
     private fun showNetworkErrorView() {
-        noContentLoadProgressView.visibility = View.INVISIBLE
         swipeRefreshLayout.isRefreshing = false
 
         if(onDoubleRefreshViewHolder != null) {
@@ -263,18 +265,22 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
             listView.visibility = View.INVISIBLE
             onDoubleRefreshViewHolder!!.onNotReachability()
         } else {
+            noContentLoadProgressView.visibility = View.INVISIBLE
             swipeRefreshLayout.visibility = View.VISIBLE
             listView.visibility = View.VISIBLE
         }
     }
 
     private fun showListView() {
-        noContentLoadProgressView.visibility = View.INVISIBLE
         swipeRefreshLayout.visibility = View.VISIBLE
         listView.visibility = View.VISIBLE
 
-        onDoubleRefreshViewHolder?.onReachability()
-        onDoubleRefreshViewHolder?.getView()?.visibility = INVISIBLE
+        if(onDoubleRefreshViewHolder != null) {
+            onDoubleRefreshViewHolder?.onReachability()
+            onDoubleRefreshViewHolder?.getView()?.visibility = INVISIBLE
+        } else {
+            noContentLoadProgressView.visibility = View.INVISIBLE
+        }
     }
 
     private fun switchStopContentView(sumListData: List<Any>?) {

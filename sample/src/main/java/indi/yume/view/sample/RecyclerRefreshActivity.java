@@ -74,6 +74,7 @@ public class RecyclerRefreshActivity extends AppCompatActivity {
                 });
 
         recyclerViewLayout.initData(adapter, new GridLayoutManager(this, 2));
+        recyclerViewLayout.refreshData();
 //        recyclerViewLayout.setLoadMoreView(new ViewHolder(recyclerViewLayout));
 //        recyclerViewLayout.setAutoLoadMore(false);
 //        recyclerViewLayout.setEnableLoadMore(false);
