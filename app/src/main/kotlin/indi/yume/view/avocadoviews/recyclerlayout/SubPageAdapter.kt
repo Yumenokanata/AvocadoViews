@@ -35,6 +35,7 @@ class SubPageAdapter<T>(val listAdapter: RendererAdapter<T>,
     fun loadMoreData(): Observable<List<T>> =
             subPageUtil.loadNextPage()
                     .observeOn(AndroidSchedulers.mainThread())
+                    .doOnCompleted { println("complete") }
                     .doOnNext {
                         listAdapter.contentList = it
                         listAdapter.notifyDataSetChanged()

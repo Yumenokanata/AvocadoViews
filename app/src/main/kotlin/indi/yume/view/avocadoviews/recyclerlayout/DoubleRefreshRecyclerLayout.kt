@@ -69,39 +69,41 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
             loadMoreData = loadMoreData.toStatus(if(value) LoadMoreStatus.SHOW else LoadMoreStatus.DISABLE)
         }
 
-    private val onLoadOverSub = object : Subscriber<List<Any>>() {
-        override fun onCompleted() {
+    private val onLoadOverSub: Subscriber<List<Any>>
+            get() {
+                return object : Subscriber<List<Any>>() {
+                    override fun onCompleted() {
+                        if (enableLoadMore && !autoLoadMore)
+                            loadMoreData = loadMoreData.toStatus(LoadMoreStatus.LOADOVER)
+                        else
+                            loadMoreData = loadMoreData.toStatus(LoadMoreStatus.DISABLE)
 
-        }
+                        isLoading = false
+                    }
 
-        override fun onError(e: Throwable) {
-            LogUtil.e(e)
+                    override fun onError(e: Throwable) {
+                        LogUtil.e(e)
 
-            onErrorListener?.invoke(e)
+                        onErrorListener?.invoke(e)
 
-            isLoading = false
+                        isLoading = false
 
-            if (e is NoMoreDataException) {
-                canLoadMoreFlag = false
-                loadMoreData = loadMoreData.toStatus(LoadMoreStatus.DISABLE)
-                switchStopContentView()
-            } else if (e is IOException) {
-                showNetworkErrorView()
+                        if (e is NoMoreDataException) {
+                            canLoadMoreFlag = false
+                            loadMoreData = loadMoreData.toStatus(LoadMoreStatus.DISABLE)
+                            switchStopContentView()
+                        } else if (e is IOException) {
+                            showNetworkErrorView()
+                        }
+                    }
+
+                    override fun onNext(list: List<Any>) {
+                        switchStopContentView(list)
+
+                        onNextListener?.invoke(list)
+                    }
+                }
             }
-        }
-
-        override fun onNext(list: List<Any>) {
-            switchStopContentView(list)
-            if (enableLoadMore && !autoLoadMore)
-                loadMoreData = loadMoreData.toStatus(LoadMoreStatus.LOADOVER)
-            else
-                loadMoreData = loadMoreData.toStatus(LoadMoreStatus.DISABLE)
-
-            isLoading = false
-
-            onNextListener?.invoke(list)
-        }
-    }
 
     init {
         View.inflate(context, R.layout.double_refresh_recycler_layout, this)
@@ -196,8 +198,7 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
         isLoading = true
         loadMoreSub = listAdapter.refreshData()
                 .doOnNext({ if(enableLoadMore && !autoLoadMore) loadMoreData = loadMoreData.toStatus(LoadMoreStatus.SHOW) })
-                .subscribe(Action1<List<Any>> { onLoadOverSub.onNext(it) },
-                        Action1<Throwable> { onLoadOverSub.onError(it) })
+                .subscribe(onLoadOverSub)
         switchRefreshContentView()
     }
 
@@ -217,8 +218,7 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
             loadMoreData = loadMoreData.toStatus(LoadMoreStatus.LOADING)
 
         loadMoreSub = listAdapter.loadMoreData()
-                .subscribe(Action1<List<Any>> { onLoadOverSub.onNext(it) },
-                        Action1<Throwable> { onLoadOverSub.onError(it) })
+                .subscribe(onLoadOverSub)
     }
 
     /**

@@ -42,6 +42,7 @@ public class RecyclerRefreshActivity extends AppCompatActivity {
     DoubleRefreshRecyclerLayout recyclerViewLayout;
 
     SubPageAdapter<String> adapter;
+    private int loadCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,14 +64,25 @@ public class RecyclerRefreshActivity extends AppCompatActivity {
                 initPageNum,
                 pageNum -> {
                     System.out.println("load page num: " + pageNum);
-                    if (pageNum > 4)
+                    if (pageNum > 4) {
                         return Observable.<List<String>>error(new NoMoreDataException())
                                 .delay(2000, TimeUnit.MILLISECONDS)
                                 .subscribeOn(Schedulers.io());
-                    else
+                    } else if(pageNum == 3) {
+                        loadCount++;
+                        if(loadCount < 3) {
+                            return Observable.empty();
+                        } else {
+                            loadCount = 0;
+                            return Observable.just(provideTestData(pageNum))
+                                    .delay(2000, TimeUnit.MILLISECONDS)
+                                    .subscribeOn(Schedulers.io());
+                        }
+                    } else {
                         return Observable.just(provideTestData(pageNum))
                                 .delay(2000, TimeUnit.MILLISECONDS)
                                 .subscribeOn(Schedulers.io());
+                    }
                 });
 
         recyclerViewLayout.initData(adapter, new GridLayoutManager(this, 2));
