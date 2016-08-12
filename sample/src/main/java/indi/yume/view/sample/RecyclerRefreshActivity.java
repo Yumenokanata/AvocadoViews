@@ -2,6 +2,7 @@ package indi.yume.view.sample;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.view.LayoutInflater;
@@ -41,6 +42,8 @@ public class RecyclerRefreshActivity extends AppCompatActivity {
 
     @Bind(R.id.recycler_view_layout)
     DoubleRefreshRecyclerLayout recyclerViewLayout;
+    @Bind(R.id.activity_recycler_refresh)
+    CoordinatorLayout activityRecyclerRefresh;
 
     SubPageAdapter<String> adapter;
     private int loadCount = 0;
@@ -70,11 +73,11 @@ public class RecyclerRefreshActivity extends AppCompatActivity {
                         return Observable.<List<String>>error(new NoMoreDataException())
                                 .delay(2000, TimeUnit.MILLISECONDS)
                                 .subscribeOn(Schedulers.io());
-                    } else if(pageNum == 3) {
+                    } else if (pageNum == 3) {
                         loadCount++;
-                        if(loadCount < 1) {
+                        if (loadCount < 1) {
                             return Observable.empty();
-                        } else if(loadCount < 3) {
+                        } else if (loadCount < 3) {
                             return Observable.error(new IOException());
                         } else {
                             loadCount = 0;
@@ -84,9 +87,8 @@ public class RecyclerRefreshActivity extends AppCompatActivity {
                         }
                     } else {
                         refreshCount++;
-                        if(refreshCount <= 1 || refreshCount >= 3) {
-                            if(refreshCount >= 3)
-                                refreshCount = 0;
+                        if (refreshCount >= 3) {
+                            refreshCount = 0;
                             return Observable.just(provideTestData(pageNum))
                                     .delay(2000, TimeUnit.MILLISECONDS)
                                     .subscribeOn(Schedulers.io());
@@ -96,6 +98,7 @@ public class RecyclerRefreshActivity extends AppCompatActivity {
                     }
                 });
 
+        recyclerViewLayout.setOnDoubleRefreshViewHolder(new LoadingStatusViewHolder(activityRecyclerRefresh, recyclerViewLayout));
         recyclerViewLayout.initData(adapter, new GridLayoutManager(this, 2));
         recyclerViewLayout.refreshData();
 //        recyclerViewLayout.setLoadMoreView(new ViewHolder(recyclerViewLayout));
@@ -154,8 +157,9 @@ public class RecyclerRefreshActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onNotReachability() {
+        public boolean onNotReachability() {
             view.setVisibility(View.VISIBLE);
+            return true;
         }
 
         @Override

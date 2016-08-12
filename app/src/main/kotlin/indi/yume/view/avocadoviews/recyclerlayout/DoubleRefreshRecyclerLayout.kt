@@ -83,6 +83,7 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
 
                     override fun onError(e: Throwable) {
                         LogUtil.e(e)
+                        e.printStackTrace()
 
                         onErrorListener?.invoke(e)
 
@@ -240,6 +241,7 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
         listView.visibility = View.INVISIBLE
 
         if(onDoubleRefreshViewHolder != null) {
+            onDoubleRefreshViewHolder?.getView()?.visibility = VISIBLE
             onDoubleRefreshViewHolder?.onLoading()
         } else {
             noContentLoadProgressView.visibility = View.VISIBLE
@@ -250,6 +252,7 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
         if(onDoubleRefreshViewHolder != null) {
             swipeRefreshLayout.visibility = View.INVISIBLE
             listView.visibility = View.INVISIBLE
+            onDoubleRefreshViewHolder?.getView()?.visibility = VISIBLE
             onDoubleRefreshViewHolder!!.onNoContents()
         } else {
             noContentLoadProgressView.visibility = View.INVISIBLE
@@ -262,9 +265,15 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
         swipeRefreshLayout.isRefreshing = false
 
         if(onDoubleRefreshViewHolder != null) {
-            swipeRefreshLayout.visibility = View.INVISIBLE
-            listView.visibility = View.INVISIBLE
-            onDoubleRefreshViewHolder!!.onNotReachability()
+            if(!onDoubleRefreshViewHolder!!.onNotReachability()) {
+                onDoubleRefreshViewHolder?.getView()?.visibility = INVISIBLE
+                swipeRefreshLayout.visibility = VISIBLE
+                listView.visibility = VISIBLE
+            } else {
+                onDoubleRefreshViewHolder?.getView()?.visibility = VISIBLE
+                swipeRefreshLayout.visibility = View.INVISIBLE
+                listView.visibility = View.INVISIBLE
+            }
         } else {
             noContentLoadProgressView.visibility = View.INVISIBLE
             swipeRefreshLayout.visibility = View.VISIBLE

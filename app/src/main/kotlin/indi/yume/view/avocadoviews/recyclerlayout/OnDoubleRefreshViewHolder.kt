@@ -10,6 +10,6 @@ interface OnDoubleRefreshViewHolder {
 
     fun onLoading()
     fun onNoContents()
-    fun onNotReachability()
+    fun onNotReachability(): Boolean
     fun onReachability()
 }
