@@ -94,6 +94,7 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
                             switchStopContentView()
                         } else if (e is IOException) {
                             showNetworkErrorView()
+                            onCompleted()
                         }
                     }
 

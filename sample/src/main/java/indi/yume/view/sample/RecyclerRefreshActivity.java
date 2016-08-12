@@ -17,6 +17,7 @@ import com.annimon.stream.Stream;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -43,6 +44,7 @@ public class RecyclerRefreshActivity extends AppCompatActivity {
 
     SubPageAdapter<String> adapter;
     private int loadCount = 0;
+    private int refreshCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,8 +72,10 @@ public class RecyclerRefreshActivity extends AppCompatActivity {
                                 .subscribeOn(Schedulers.io());
                     } else if(pageNum == 3) {
                         loadCount++;
-                        if(loadCount < 3) {
+                        if(loadCount < 1) {
                             return Observable.empty();
+                        } else if(loadCount < 3) {
+                            return Observable.error(new IOException());
                         } else {
                             loadCount = 0;
                             return Observable.just(provideTestData(pageNum))
@@ -79,9 +83,16 @@ public class RecyclerRefreshActivity extends AppCompatActivity {
                                     .subscribeOn(Schedulers.io());
                         }
                     } else {
-                        return Observable.just(provideTestData(pageNum))
-                                .delay(2000, TimeUnit.MILLISECONDS)
-                                .subscribeOn(Schedulers.io());
+                        refreshCount++;
+                        if(refreshCount <= 1 || refreshCount >= 3) {
+                            if(refreshCount >= 3)
+                                refreshCount = 0;
+                            return Observable.just(provideTestData(pageNum))
+                                    .delay(2000, TimeUnit.MILLISECONDS)
+                                    .subscribeOn(Schedulers.io());
+                        } else {
+                            return Observable.error(new IOException());
+                        }
                     }
                 });
 
