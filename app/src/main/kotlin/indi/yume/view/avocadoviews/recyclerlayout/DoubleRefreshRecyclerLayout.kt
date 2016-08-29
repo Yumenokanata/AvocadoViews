@@ -118,10 +118,10 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
         showNoContentView()
     }
 
-    fun setLoadMoreView(loadMoreView: LoadMoreViewHolder) {
-        listAdapter.listAdapter.removeFooterView(loadMoreData.loadMoreViewHolder.view)
+    fun setLoadMoreView(loadMoreView: LoadMoreViewHolder?) {
+        loadMoreData.loadMoreViewHolder?.apply { listAdapter.listAdapter.removeFooterView(view) }
 
-        listAdapter.listAdapter.addFooterView(loadMoreView.view)
+        loadMoreView?.apply { listAdapter.listAdapter.addFooterView(view) }
         loadMoreData = LoadMoreData(loadMoreView, LoadMoreStatus.NONE)
                 .toStatus(if(canLoadMoreFlag && listAdapter.listAdapter.contentLength != 0) LoadMoreStatus.SHOW else LoadMoreStatus.DISABLE)
     }
@@ -181,7 +181,8 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
 
     private fun checkLoadMoreViewCanSee(recyclerView: RecyclerView,
                                         adapter: RendererAdapter<out Any>,
-                                        loadMoreView: LoadMoreViewHolder): Boolean =
+                                        loadMoreView: LoadMoreViewHolder?): Boolean =
+            loadMoreView == null ||
             (0..adapter.footerViewCount - 1)
                     .map { recyclerView.childCount - it - 1 }
                     .map { recyclerView.getChildAt(it) }
@@ -330,14 +331,14 @@ enum class LoadMoreStatus{
     LOADOVER
 }
 
-data class LoadMoreData(val loadMoreViewHolder: LoadMoreViewHolder, val status: LoadMoreStatus) {
+data class LoadMoreData(val loadMoreViewHolder: LoadMoreViewHolder?, val status: LoadMoreStatus) {
     fun map(f: (LoadMoreStatus) -> LoadMoreStatus): LoadMoreData = LoadMoreData(loadMoreViewHolder, f(status))
     fun flatMap(f: (LoadMoreStatus) -> LoadMoreData): LoadMoreData = f(status)
 
     fun toStatus(newStatus: LoadMoreStatus): LoadMoreData =
         when(newStatus) {
             status -> this
-            else -> { loadMoreViewHolder.stateChange(status, newStatus); map({ newStatus }) }
+            else -> { loadMoreViewHolder?.stateChange(status, newStatus); map({ newStatus }) }
         }
 }
 

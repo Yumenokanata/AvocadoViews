@@ -59,7 +59,7 @@ dependencies {
     compile 'io.reactivex:rxandroid:1.1.0'
     compile 'com.jakewharton.rxbinding:rxbinding:0.3.0'
     compile 'com.jakewharton.rxbinding:rxbinding-support-v4:0.3.0'
-    compile 'io.reactivex:rxkotlin:0.55.0'
+    compile 'io.reactivex:rxkotlin:0.60.0'
 
     compile 'com.github.Yumenokanata:Avocado:1.4.5'
     compile 'com.github.Yumenokanata:AdapterRenderer:2.2b'
