@@ -45,6 +45,27 @@ public class LoadingLayout extends FrameLayout {
 
         if(settingData == null)
             settingData = new SettingData(-1, -1, -1, 0, 0);
+
+        if (settingData.getEmptyViewLayoutResId() != -1) {
+            emptyView = inflateView(settingData.getEmptyViewLayoutResId());
+            addView(emptyView);
+        }
+
+        if (settingData.getErrorViewLayoutResId() != -1){
+            errorView = inflateView(settingData.getErrorViewLayoutResId());
+            addView(errorView);
+        }
+
+        if (settingData.getLoadingViewLayoutResId() != -1){
+            loadingView = inflateView(settingData.getLoadingViewLayoutResId());
+            addView(loadingView);
+        }
+
+        switchMode(settingData.getDefaultShowMode());
+    }
+
+    private View inflateView(@LayoutRes int layout) {
+        return LayoutInflater.from(getContext()).inflate(layout, this, false);
     }
 
     private void init(TypedArray tArray) {
@@ -68,16 +89,14 @@ public class LoadingLayout extends FrameLayout {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        contentView = getChildAt(0);
 
-        if (settingData.getEmptyViewLayoutResId() != -1)
-            setEmptyView(settingData.getEmptyViewLayoutResId());
-
-        if (settingData.getErrorViewLayoutResId() != -1)
-            setErrorView(settingData.getErrorViewLayoutResId());
-
-        if (settingData.getLoadingViewLayoutResId() != -1)
-            setLoadingView(settingData.getLoadingViewLayoutResId());
+        for(int i = 0; i < getChildCount(); i++) {
+            View view = getChildAt(i);
+            if(view != errorView && view != loadingView && view != emptyView) {
+                contentView = view;
+                break;
+            }
+        }
 
         if (isInEditMode()) {
             switchMode(settingData.getEditModeShowMode());
@@ -182,6 +201,9 @@ public class LoadingLayout extends FrameLayout {
     }
 
     private void showSingleView(View specialView) {
+        if(specialView == null)
+            return;
+
         for (int i = 0; i < getChildCount(); i++) {
             View child = getChildAt(i);
             if (child == specialView) {
