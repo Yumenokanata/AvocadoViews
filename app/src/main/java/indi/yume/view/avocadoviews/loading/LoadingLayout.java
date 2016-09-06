@@ -23,6 +23,8 @@ public class LoadingLayout extends FrameLayout {
     @Getter
     private View emptyView;
     @Getter
+    private View uselessView;
+    @Getter
     private View errorView;
     @Getter
     private View loadingView;
@@ -44,11 +46,16 @@ public class LoadingLayout extends FrameLayout {
             init(context.obtainStyledAttributes(attrs, R.styleable.LoadingLayout, defStyleAttr, 0));
 
         if(settingData == null)
-            settingData = new SettingData(-1, -1, -1, 0, 0);
+            settingData = new SettingData(-1, -1, -1, -1, 0, 0);
 
         if (settingData.getEmptyViewLayoutResId() != -1) {
             emptyView = inflateView(settingData.getEmptyViewLayoutResId());
             addView(emptyView);
+        }
+
+        if (settingData.getUselessViewLayoutResId() != -1) {
+            uselessView = inflateView(settingData.getUselessViewLayoutResId());
+            addView(uselessView);
         }
 
         if (settingData.getErrorViewLayoutResId() != -1){
@@ -71,12 +78,14 @@ public class LoadingLayout extends FrameLayout {
     private void init(TypedArray tArray) {
         try {
             int emptyViewLayoutResId = tArray.getResourceId(R.styleable.LoadingLayout_ll_emptyView, -1);
+            int uselessViewLayoutResId = tArray.getResourceId(R.styleable.LoadingLayout_ll_uselessView, -1);
             int errorViewLayoutResId = tArray.getResourceId(R.styleable.LoadingLayout_ll_errorView, -1);
             int loadingViewLayoutResId = tArray.getResourceId(R.styleable.LoadingLayout_ll_loadingView, -1);
             int defaultShowMode = tArray.getInt(R.styleable.LoadingLayout_ll_defaultShowMode, 0);
             int editModeShowMode = tArray.getInt(R.styleable.LoadingLayout_ll_toolShowMode, 0);
 
             settingData = new SettingData(emptyViewLayoutResId,
+                    uselessViewLayoutResId,
                     errorViewLayoutResId,
                     loadingViewLayoutResId,
                     defaultShowMode,
@@ -92,7 +101,7 @@ public class LoadingLayout extends FrameLayout {
 
         for(int i = 0; i < getChildCount(); i++) {
             View view = getChildAt(i);
-            if(view != errorView && view != loadingView && view != emptyView) {
+            if(view != errorView && view != loadingView && view != emptyView && view != uselessView) {
                 contentView = view;
                 break;
             }
@@ -119,6 +128,9 @@ public class LoadingLayout extends FrameLayout {
             case 3:
                 showLoadingView();
                 break;
+            case 4:
+                showUselessView();
+                break;
         }
     }
 
@@ -129,6 +141,16 @@ public class LoadingLayout extends FrameLayout {
             }
             this.emptyView = emptyView;
             addView(this.emptyView);
+        }
+    }
+
+    public void setUselessView(View uselessView) {
+        if (this.uselessView != uselessView) {
+            if (this.uselessView != null) {
+                removeView(this.uselessView);
+            }
+            this.uselessView = uselessView;
+            addView(this.uselessView);
         }
     }
 
@@ -169,6 +191,11 @@ public class LoadingLayout extends FrameLayout {
         setEmptyView(view);
     }
 
+    public void setUselessView(@LayoutRes int uselessViewResId) {
+        View view = LayoutInflater.from(getContext()).inflate(uselessViewResId, this, false);
+        setUselessView(view);
+    }
+
     public void setErrorView(@LayoutRes int errorViewResId) {
         View view = LayoutInflater.from(getContext()).inflate(errorViewResId, this, false);
         setErrorView(view);
@@ -186,6 +213,10 @@ public class LoadingLayout extends FrameLayout {
 
     public void showEmptyView() {
         showSingleView(this.emptyView);
+    }
+
+    public void showUselessView() {
+        showSingleView(this.uselessView);
     }
 
     public void showErrorView() {
@@ -219,6 +250,8 @@ public class LoadingLayout extends FrameLayout {
     private static class SettingData {
         @LayoutRes
         private final int emptyViewLayoutResId;
+        @LayoutRes
+        private final int uselessViewLayoutResId;
         @LayoutRes
         private final int errorViewLayoutResId;
         @LayoutRes

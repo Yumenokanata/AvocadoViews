@@ -32,6 +32,7 @@
     </declare-styleable>
 
     <declare-styleable name="LoadingLayout">
+        <attr name="ll_uselessView" format="reference"/>
         <attr name="ll_emptyView" format="reference"/>
         <attr name="ll_errorView" format="reference"/>
         <attr name="ll_loadingView" format="reference"/>
@@ -40,12 +41,14 @@
             <enum name="empty" value="1"/>
             <enum name="error" value="2"/>
             <enum name="loading" value="3"/>
+            <enum name="useless" value="4"/>
         </attr>
         <attr name="ll_toolShowMode" format="enum">
             <enum name="content" value="0"/>
             <enum name="empty" value="1"/>
             <enum name="error" value="2"/>
             <enum name="loading" value="3"/>
+            <enum name="useless" value="4"/>
         </attr>
     </declare-styleable>
 </resources>
