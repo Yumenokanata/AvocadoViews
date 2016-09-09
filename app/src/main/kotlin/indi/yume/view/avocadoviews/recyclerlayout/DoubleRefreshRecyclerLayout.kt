@@ -76,7 +76,7 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
                     var hasEvent = false
 
                     override fun onCompleted() {
-                        if (enableLoadMore && !autoLoadMore)
+                        if (enableLoadMore && !autoLoadMore && listAdapter.listAdapter.contentList?.size ?: 0 != 0)
                             loadMoreData = loadMoreData.toStatus(LoadMoreStatus.LOADOVER)
                         else
                             loadMoreData = loadMoreData.toStatus(LoadMoreStatus.DISABLE)
@@ -199,7 +199,7 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
                                         adapter: RendererAdapter<out Any>,
                                         loadMoreView: LoadMoreViewHolder?): Boolean {
         if(loadMoreView != null)
-            (0..adapter.footerViewCount - 1)
+            return (0..adapter.footerViewCount - 1)
                     .map { recyclerView.childCount - it - 1 }
                     .map { recyclerView.getChildAt(it) }
                     .any { it === loadMoreView.view }
