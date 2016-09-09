@@ -112,6 +112,14 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
 
         swipeRefreshLayout.setColorSchemeResources(R.color.color_re1)
 
+        if(context != null && attrs != null) {
+            val tArray = context.obtainStyledAttributes(attrs, R.styleable.DoubleRefreshRecyclerLayout)
+            listView.isVerticalScrollBarEnabled = tArray.getBoolean(R.styleable.DoubleRefreshRecyclerLayout_dr_enableScrollbar, false);
+            tArray.recycle()
+        } else {
+            listView.isVerticalScrollBarEnabled = false
+        }
+
         listView.layoutManager = LinearLayoutManager(context)
         loadMoreData = LoadMoreData(DefaultLoadMoreViewHolder(context!!, listView), LoadMoreStatus.NONE)
 

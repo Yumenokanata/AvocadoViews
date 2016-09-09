@@ -51,4 +51,8 @@
             <enum name="useless" value="4"/>
         </attr>
     </declare-styleable>
+
+    <declare-styleable name="DoubleRefreshRecyclerLayout">
+        <attr name="dr_enableScrollbar" format="boolean"/>
+    </declare-styleable>
 </resources>
