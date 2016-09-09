@@ -258,11 +258,10 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
     }
 
     private fun showNoContentView() {
-        if(onDoubleRefreshViewHolder != null) {
+        if(onDoubleRefreshViewHolder != null && onDoubleRefreshViewHolder?.onNoContents() ?: false) {
             swipeRefreshLayout.visibility = View.INVISIBLE
             listView.visibility = View.INVISIBLE
             onDoubleRefreshViewHolder?.getView()?.visibility = VISIBLE
-            onDoubleRefreshViewHolder!!.onNoContents()
         } else {
             noContentLoadProgressView.visibility = View.INVISIBLE
             swipeRefreshLayout.visibility = View.VISIBLE
