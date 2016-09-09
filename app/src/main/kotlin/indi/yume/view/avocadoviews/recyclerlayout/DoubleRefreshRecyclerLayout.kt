@@ -2,6 +2,7 @@ package indi.yume.view.avocadoviews.recyclerlayout
 
 import android.content.Context
 import android.support.v4.widget.SwipeRefreshLayout
+import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
@@ -72,6 +73,8 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
     private val onLoadOverSub: Subscriber<List<Any>>
             get() {
                 return object : Subscriber<List<Any>>() {
+                    var hasEvent = false
+
                     override fun onCompleted() {
                         if (enableLoadMore && !autoLoadMore)
                             loadMoreData = loadMoreData.toStatus(LoadMoreStatus.LOADOVER)
@@ -79,9 +82,13 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
                             loadMoreData = loadMoreData.toStatus(LoadMoreStatus.DISABLE)
 
                         isLoading = false
+                        if(!hasEvent)
+                            switchStopContentView(listAdapter.listAdapter.contentList)
+                        hasEvent = false
                     }
 
                     override fun onError(e: Throwable) {
+                        hasEvent = true
                         LogUtil.e(e)
                         e.printStackTrace()
 
@@ -100,6 +107,7 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
                     }
 
                     override fun onNext(list: List<Any>) {
+                        hasEvent = true
                         switchStopContentView(list)
 
                         onNextListener?.invoke(list)
@@ -189,12 +197,22 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
 
     private fun checkLoadMoreViewCanSee(recyclerView: RecyclerView,
                                         adapter: RendererAdapter<out Any>,
-                                        loadMoreView: LoadMoreViewHolder?): Boolean =
-            loadMoreView == null ||
+                                        loadMoreView: LoadMoreViewHolder?): Boolean {
+        if(loadMoreView != null)
             (0..adapter.footerViewCount - 1)
                     .map { recyclerView.childCount - it - 1 }
                     .map { recyclerView.getChildAt(it) }
                     .any { it === loadMoreView.view }
+
+        val manager = recyclerView.layoutManager
+        val lastVisiablePos = when(manager) {
+            is LinearLayoutManager -> manager.findLastVisibleItemPosition()
+            is GridLayoutManager -> manager.findLastVisibleItemPosition()
+            else -> recyclerView.run { getChildViewHolder(getChildAt(childCount - 1)).adapterPosition }
+        }
+
+        return adapter.itemCount == lastVisiablePos + 1
+    }
 
     fun stopLoad() {
         loadMoreSub?.unsubscribe()
