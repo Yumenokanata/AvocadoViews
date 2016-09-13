@@ -36,12 +36,38 @@ class SubPageUtil<T>(private val provideObservable: (Int) -> Observable<List<T>>
                         pageNum++ }
                     .map { getAllData() }
 
+                    .onErrorResumeNext {
+                        if(it is LastDataException) {
+                            val list: List<T> = it.list as? List<T> ?: Collections.emptyList()
+
+                            cachePageData = cachePageData + (doForEveryPageData?.invoke(list) ?: list)
+                            pageNum++
+
+                            Observable.just(LastList<T>(cachePageData.toMutableList()))
+                        } else {
+                            Observable.error(it)
+                        }
+                    }
+
     fun refreshPageData(): Observable<List<T>> =
             provideObservable(firstPageNum)
                     .doOnNext { list ->
                         cachePageData = doForEveryPageData?.invoke(list) ?: list
                         pageNum = firstPageNum }
                     .map { getAllData() }
+
+                    .onErrorResumeNext {
+                        if(it is LastDataException) {
+                            val list: List<T> = it.list as? List<T> ?: Collections.emptyList()
+
+                            cachePageData = doForEveryPageData?.invoke(list) ?: list
+                            pageNum = firstPageNum
+
+                            Observable.just(LastList<T>(cachePageData.toMutableList()))
+                        } else {
+                            Observable.error(it)
+                        }
+                    }
 
     fun getAllData(): List<T> = Collections.unmodifiableList(cachePageData)
 }

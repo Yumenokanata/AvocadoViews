@@ -76,7 +76,7 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
                     var hasEvent = false
 
                     override fun onCompleted() {
-                        if (enableLoadMore && !autoLoadMore && listAdapter.listAdapter.contentList?.size ?: 0 != 0)
+                        if (canLoadMoreFlag && enableLoadMore && !autoLoadMore && listAdapter.listAdapter.contentList?.size ?: 0 != 0)
                             loadMoreData = loadMoreData.toStatus(LoadMoreStatus.LOADOVER)
                         else
                             loadMoreData = loadMoreData.toStatus(LoadMoreStatus.DISABLE)
@@ -111,6 +111,11 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
                         switchStopContentView(list)
 
                         onNextListener?.invoke(list)
+
+                        if(list is LastList) {
+                            canLoadMoreFlag = false
+                            switchStopContentView()
+                        }
                     }
                 }
             }
