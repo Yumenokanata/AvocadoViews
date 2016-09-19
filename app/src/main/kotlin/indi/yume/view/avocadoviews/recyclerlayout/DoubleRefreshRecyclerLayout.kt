@@ -36,7 +36,7 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
 
     private lateinit var loadMoreData: LoadMoreData
 
-    private lateinit var listAdapter: SubPageAdapter<out Any>
+    internal lateinit var listAdapter: SubPageAdapter<out Any>
 
     private var loadMoreSub: Subscription? = null
 
@@ -64,7 +64,7 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
             field = value
         }
 
-    private var canLoadMoreFlag = true
+    internal var canLoadMoreFlag = true
         set(value) {
             field = value
             loadMoreData = loadMoreData.toStatus(if(value) LoadMoreStatus.SHOW else LoadMoreStatus.DISABLE)
