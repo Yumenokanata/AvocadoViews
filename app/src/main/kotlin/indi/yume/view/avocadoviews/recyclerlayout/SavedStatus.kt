@@ -13,7 +13,9 @@ import java.util.*
 data class SavedStatus(val subPageAdapter: SubPageAdapter<out Any>?,
                        val enableLoadMore: Boolean,
                        val autoLoadMore: Boolean,
-                       val canLoadMoreFlag: Boolean)
+                       val canLoadMoreFlag: Boolean) {
+    fun isEmpty(): Boolean = subPageAdapter?.listAdapter?.contentLength == 0
+}
 
 fun DoubleRefreshRecyclerLayout.saveStatus(): SavedStatus =
         SavedStatus(listAdapter, enableLoadMore, autoLoadMore, canLoadMoreFlag)
