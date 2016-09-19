@@ -226,12 +226,12 @@ class DoubleRefreshRecyclerLayout(context: Context?, attrs: AttributeSet?) : Fra
     fun refreshData() {
         stopLoad()
 
-        canLoadMoreFlag = true
         loadMoreData = loadMoreData.toStatus(LoadMoreStatus.DISABLE)
 
         isLoading = true
         loadMoreSub = listAdapter.refreshData()
                 .doOnNext({ if(enableLoadMore && !autoLoadMore) loadMoreData = loadMoreData.toStatus(LoadMoreStatus.SHOW) })
+                .doOnNext { canLoadMoreFlag = true }
                 .subscribe(onLoadOverSub)
         switchRefreshContentView()
     }
