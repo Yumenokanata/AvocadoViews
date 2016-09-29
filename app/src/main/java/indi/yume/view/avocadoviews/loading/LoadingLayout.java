@@ -232,9 +232,6 @@ public class LoadingLayout extends FrameLayout {
     }
 
     private void showSingleView(View specialView) {
-        if(specialView == null)
-            return;
-
         for (int i = 0; i < getChildCount(); i++) {
             View child = getChildAt(i);
             if (child == specialView) {
