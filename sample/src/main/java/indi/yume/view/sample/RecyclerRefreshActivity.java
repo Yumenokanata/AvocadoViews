@@ -18,23 +18,21 @@ import com.annimon.stream.Stream;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import indi.yume.tools.adapter_renderer.recycler.RendererAdapter;
 import indi.yume.view.avocadoviews.recyclerlayout.DoubleRefreshRecyclerLayout;
+import indi.yume.view.avocadoviews.recyclerlayout.LastDataException;
 import indi.yume.view.avocadoviews.recyclerlayout.LoadMoreStatus;
 import indi.yume.view.avocadoviews.recyclerlayout.LoadMoreViewHolder;
 import indi.yume.view.avocadoviews.recyclerlayout.NoMoreDataException;
 import indi.yume.view.avocadoviews.recyclerlayout.OnDoubleRefreshViewHolder;
 import indi.yume.view.avocadoviews.recyclerlayout.SubPageAdapter;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
 public class RecyclerRefreshActivity extends AppCompatActivity {
     private static final String SAVE_KEY_ARRAY = "save_key_array";
@@ -67,45 +65,66 @@ public class RecyclerRefreshActivity extends AppCompatActivity {
         adapter = new SubPageAdapter<>(rendererAdapter,
                 list,
                 initPageNum,
-                pageNum -> {
-                    System.out.println("load page num: " + pageNum);
-                    if (pageNum > 4) {
-                        return Observable.<List<String>>error(new NoMoreDataException())
-                                .delay(2000, TimeUnit.MILLISECONDS)
-                                .subscribeOn(Schedulers.io());
-                    } else if (pageNum == 3) {
-                        loadCount++;
-                        if (loadCount < 1) {
-                            return Observable.empty();
-                        } else if (loadCount < 3) {
-                            return Observable.error(new IOException());
-                        } else {
-                            loadCount = 0;
-                            return Observable.just(provideTestData(pageNum))
-                                    .delay(2000, TimeUnit.MILLISECONDS)
-                                    .subscribeOn(Schedulers.io());
-                        }
-                    } else {
-                        refreshCount++;
-                        if (refreshCount >= 3) {
-                            refreshCount = 0;
-                            return Observable.just(provideTestData(pageNum))
-                                    .delay(2000, TimeUnit.MILLISECONDS)
-                                    .subscribeOn(Schedulers.io());
-                        } else {
-                            return Observable.error(new IOException());
-                        }
-                    }
-                });
+                pageNum -> getObservable(pageNum));
 
+//        recyclerViewLayout.getListView().setVerticalScrollBarEnabled(true);
         recyclerViewLayout.setOnDoubleRefreshViewHolder(new LoadingStatusViewHolder(activityRecyclerRefresh, recyclerViewLayout));
         recyclerViewLayout.initData(adapter, new GridLayoutManager(this, 2));
-        recyclerViewLayout.refreshData();
-//        recyclerViewLayout.setLoadMoreView(new ViewHolder(recyclerViewLayout));
-//        recyclerViewLayout.setAutoLoadMore(false);
-//        recyclerViewLayout.setEnableLoadMore(false);
+//        recyclerViewLayout.setLoadMoreView(null);
+        recyclerViewLayout.setLoadMoreView(new ViewHolder(recyclerViewLayout));
+        recyclerViewLayout.setAutoLoadMore(false);
+        recyclerViewLayout.setEnableLoadMore(true);
 //        if(savedInstanceState == null)
 //            recyclerViewLayout.refreshData();
+        recyclerViewLayout.refreshData();
+    }
+
+    int count = 0;
+    private Observable<List<String>> getObservable(int pageNum) {
+//        return Observable.empty();
+//        return Observable.just(provideTestData(pageNum));
+
+        count++;
+        if(count % 2 == 1 && pageNum == 1)
+            return Observable.empty();
+
+        if(pageNum > 2)
+            return Observable.error(new NoMoreDataException());
+
+        return Observable.just(provideTestData(pageNum));
+
+//        if(pageNum > 2)
+//            return Observable.error(new LastDataException(provideTestData(pageNum)));
+//        return Observable.error(new NoMoreDataException());
+
+//        System.out.println("load page num: " + pageNum);
+//        if (pageNum > 4) {
+//            return Observable.<List<String>>error(new NoMoreDataException())
+//                    .delay(2000, TimeUnit.MILLISECONDS)
+//                    .subscribeOn(Schedulers.io());
+//        } else if (pageNum == 3) {
+//            loadCount++;
+//            if (loadCount < 1) {
+//                return Observable.empty();
+//            } else if (loadCount < 3) {
+//                return Observable.error(new IOException());
+//            } else {
+//                loadCount = 0;
+//                return Observable.just(provideTestData(pageNum))
+//                        .delay(2000, TimeUnit.MILLISECONDS)
+//                        .subscribeOn(Schedulers.io());
+//            }
+//        } else {
+//            refreshCount++;
+//            if (refreshCount >= 3) {
+//                refreshCount = 0;
+//                return Observable.just(provideTestData(pageNum))
+//                        .delay(2000, TimeUnit.MILLISECONDS)
+//                        .subscribeOn(Schedulers.io());
+//            } else {
+//                return Observable.error(new IOException());
+//            }
+//        }
     }
 
     private List<String> provideTestData(int pageNum) {
@@ -152,8 +171,9 @@ public class RecyclerRefreshActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onNoContents() {
+        public boolean onNoContents() {
             view.setVisibility(View.VISIBLE);
+            return true;
         }
 
         @Override

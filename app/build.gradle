@@ -1,6 +1,6 @@
 buildscript {
-    ext.kotlin_version = '1.0.1-2'
-    ext.anko_version = '0.8.3'
+    ext.kotlin_version = '1.0.5'
+    ext.anko_version = '0.9'
     repositories {
         mavenCentral()
         jcenter()
@@ -8,7 +8,7 @@ buildscript {
 
     dependencies {
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
-        classpath 'me.tatarka:gradle-retrolambda:3.2.4'
+        classpath 'me.tatarka:gradle-retrolambda:3.3.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -56,16 +56,16 @@ dependencies {
 
     compile 'com.pawegio.kandroid:kandroid:0.6.2@aar'
 
-    compile 'io.reactivex:rxandroid:1.1.0'
-    compile 'com.jakewharton.rxbinding:rxbinding:0.3.0'
-    compile 'com.jakewharton.rxbinding:rxbinding-support-v4:0.3.0'
+    compile 'io.reactivex:rxandroid:1.2.1'
+    compile 'com.jakewharton.rxbinding:rxbinding:0.4.0'
+    compile 'com.jakewharton.rxbinding:rxbinding-support-v4:0.4.0'
     compile 'io.reactivex:rxkotlin:0.60.0'
 
-    compile 'com.github.Yumenokanata:Avocado:1.4.5'
-    compile 'com.github.Yumenokanata:AdapterRenderer:2.2b'
+    compile 'com.github.Yumenokanata.Avocado:avocado:2.0.0'
+    compile 'com.github.Yumenokanata:AdapterRenderer:2.3'
 
-    apt "org.projectlombok:lombok:1.16.6"
-    provided "org.projectlombok:lombok:1.16.6"
+    apt "org.projectlombok:lombok:1.16.10"
+    provided "org.projectlombok:lombok:1.16.10"
 
     compile 'biz.kasual:materialnumberpicker:1.2.0'
     compile 'me.zhanghai.android.materialprogressbar:library:1.1.5'

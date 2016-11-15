@@ -42,9 +42,10 @@ public class LoadingStatusViewHolder implements OnDoubleRefreshViewHolder {
     }
 
     @Override
-    public void onNoContents() {
+    public boolean onNoContents() {
         homeLoadingLayout.showErrorView();
         System.out.println("LoadingStatusViewHolder: onNoContents");
+        return false;
     }
 
     @Override

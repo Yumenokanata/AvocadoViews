@@ -11,6 +11,7 @@
     <indi.yume.view.avocadoviews.recyclerlayout.DoubleRefreshRecyclerLayout
         android:id="@+id/recycler_view_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        app:dr_enableScrollbar="true"/>
 
 </android.support.design.widget.CoordinatorLayout>
