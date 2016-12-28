@@ -86,6 +86,11 @@ public class CustomDatePickerDialog {
         return this;
     }
 
+    public CustomDatePickerDialog setButtonColorRes(@ColorRes int color) {
+        viewHolder.setButtonColor(ContextCompat.getColor(context, color));
+        return this;
+    }
+
     public CustomDatePickerDialog setButtonColor(ColorStateList color) {
         viewHolder.setButtonColor(color);
         return this;
