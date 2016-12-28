@@ -2,6 +2,7 @@ package indi.yume.view.avocadoviews.dataselect;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.support.annotation.IntDef;
@@ -77,6 +78,16 @@ public class CustomDatePickerDialog {
 
     public CustomDatePickerDialog setSeparatorColorRes(@ColorRes int color) {
         viewHolder.setSeparatorColor(ContextCompat.getColor(context, color));
+        return this;
+    }
+
+    public CustomDatePickerDialog setButtonColor(@ColorInt int color) {
+        viewHolder.setButtonColor(color);
+        return this;
+    }
+
+    public CustomDatePickerDialog setButtonColor(ColorStateList color) {
+        viewHolder.setButtonColor(color);
         return this;
     }
 
@@ -207,6 +218,16 @@ public class CustomDatePickerDialog {
             yearNumPicker.setSeparatorColor(color);
             monthNumPicker.setSeparatorColor(color);
             dayNumPicker.setSeparatorColor(color);
+        }
+
+        void setButtonColor(@ColorInt int color) {
+            dialogCancelBtn.setTextColor(color);
+            dialogOkBtn.setTextColor(color);
+        }
+
+        void setButtonColor(ColorStateList colors) {
+            dialogCancelBtn.setTextColor(colors);
+            dialogOkBtn.setTextColor(colors);
         }
 
         private void init(Context context) {
