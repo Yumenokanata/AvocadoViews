@@ -18,15 +18,15 @@ Step2: 在工程中添加依赖：
 ```groovy
 dependencies {
     // 上、下滑动载入的整合控件
-    compile 'com.github.Yumenokanata.AvocadoViews:loadinglayout:2.0'
+    compile 'com.github.Yumenokanata.AvocadoViews:loadinglayout:2.0.1'
 
     // DSL式的RecyclerViewAdapter构建器
-    compile 'com.github.Yumenokanata.AvocadoViews:dsladapter:2.0'
+    compile 'com.github.Yumenokanata.AvocadoViews:dsladapter:2.0.1'
     // DSL式的RecyclerViewAdapter构建器的DataBinding支持
-    compile 'com.github.Yumenokanata.AvocadoViews:adapterdatabinding:2.0'
+    compile 'com.github.Yumenokanata.AvocadoViews:adapterdatabinding:2.0.1'
 
     // 轻量级的状态切换容器
-    compile 'com.github.Yumenokanata.AvocadoViews:statuslayout:2.0'
+    compile 'com.github.Yumenokanata.AvocadoViews:statuslayout:2.0.1'
 }
 ```
 

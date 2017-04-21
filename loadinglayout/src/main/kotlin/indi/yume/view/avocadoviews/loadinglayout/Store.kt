@@ -1,15 +1,11 @@
 package indi.yume.view.avocadoviews.loadinglayout
 
-import android.support.annotation.IdRes
 import android.util.Log
 import io.reactivex.BackpressureStrategy
-import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.internal.schedulers.NewThreadScheduler
 import io.reactivex.subjects.PublishSubject
 import java.lang.Exception
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 
 /**
  * Created by yume on 17-4-20.
@@ -31,7 +27,7 @@ class Store(val realWorld: RealWorld) {
                 { stateData, trunk ->
                     try {
                         val action = trunk(stateData.newState)
-                        Log.d(TAG, "start invoke action: ${action::class.simpleName}")
+                        Log.d(TAG, "start invoke action: ${action::class.java.simpleName}")
                         val newState = action
                                 .effect(realWorld, stateData.newState)
                                 .doOnNext { render(it) }
@@ -72,7 +68,7 @@ class Store(val realWorld: RealWorld) {
     }
 
     companion object {
-        val TAG: String = Store::class.simpleName ?: "Store"
+        val TAG: String = Store::class.java.simpleName ?: "Store"
     }
 }
 

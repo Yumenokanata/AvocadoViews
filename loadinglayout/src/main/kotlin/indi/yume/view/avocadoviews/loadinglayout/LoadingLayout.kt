@@ -76,8 +76,4 @@ class LoadingLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
             }
         }
     }
-
-    companion object {
-        val TAG: String = LoadingLayout::class.simpleName ?: "LoadingLayout"
-    }
 }
