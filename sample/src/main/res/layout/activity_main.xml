@@ -1,108 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context="indi.yume.view.sample.MainActivity">
+    tools:context="indi.yume.view.avocadoviews.MainActivity">
 
-    <indi.yume.view.avocadoviews.dataselect.DateSelectPicker
-        android:id="@+id/date_select_picker"
+    <Button
+        android:id="@+id/dsl_adapter_simple_button"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:text="Dsl Adapter simple"/>
 
     <Button
-        android:id="@+id/jump_to_refresh_button"
-        android:layout_width="180dp"
-        android:layout_height="wrap_content"
-        android:textAllCaps="false"
-        android:text="Jump to DoubleRefresh"/>
-
-    <Button
-        android:id="@+id/jump_to_recycler_button"
-        android:layout_width="180dp"
-        android:layout_height="wrap_content"
-        android:textAllCaps="false"
-        android:text="Jump to RecyclerRefresh"/>
-
-    <Button
-        android:id="@+id/jump_to_loading_button"
-        android:layout_width="180dp"
-        android:layout_height="wrap_content"
-        android:textAllCaps="false"
-        android:text="Jump to LoadingLayout"/>
-
-    <Button
-        android:id="@+id/show_dialog_button"
-        android:layout_width="180dp"
-        android:layout_height="wrap_content"
-        android:textAllCaps="false"
-        android:text="Show Dialog"/>
-
-    <Button
-        android:id="@+id/show_alert_dialog_button"
-        android:layout_width="180dp"
-        android:layout_height="wrap_content"
-        android:textAllCaps="false"
-        android:text="Show Alert Dialog"/>
-
-    <com.google.android.flexbox.FlexboxLayout
+        android:id="@+id/loading_layout_simple_button"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        app:alignItems="flex_start">
-
-        <TextView
-            android:layout_width="150dp"
-            android:layout_height="20dp"
-            android:textColor="@color/color_wh"
-            android:text="1111"
-            android:background="@color/color_re1"
-            android:padding="10dp"/>
-
-        <TextView
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:textColor="@color/color_wh"
-            android:text="2222"
-            android:background="@color/color_re1"
-            android:padding="10dp"/>
-
-        <TextView
-            android:layout_width="400dp"
-            android:layout_height="wrap_content"
-            android:textColor="@color/color_wh"
-            android:text="333\n3333"
-            android:background="@color/color_re1"
-            android:padding="10dp"
-            app:layout_flexShrink="0"
-            app:layout_flexBasisPercent="50%"/>
-
-        <!--<TextView-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:textColor="@color/color_wh"-->
-            <!--android:text="44444444"-->
-            <!--android:background="@color/color_re1"-->
-            <!--android:padding="10dp"-->
-            <!--app:layout_flexShrink="2"/>-->
-
-        <!--<TextView-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:textColor="@color/color_wh"-->
-            <!--android:text="555555555"-->
-            <!--android:background="@color/color_re1"-->
-            <!--android:padding="10dp"/>-->
-
-        <!--<TextView-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:textColor="@color/color_wh"-->
-            <!--android:text="666666"-->
-            <!--android:background="@color/color_re1"-->
-            <!--android:padding="10dp"/>-->
-
-    </com.google.android.flexbox.FlexboxLayout>
+        android:layout_height="wrap_content"
+        android:text="LoadingLayout simple"/>
 
 </LinearLayout>

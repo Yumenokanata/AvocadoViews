@@ -1,1 +1,1 @@
-include ':app', ':sample'
+include ':sample', ':dsladapter', ':adapterdatabinding', ':loadinglayout', ':statuslayout'

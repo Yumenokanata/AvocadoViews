@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="StatusLayout">
+        <attr name="sl_uselessView" format="reference"/>
+        <attr name="sl_emptyView" format="reference"/>
+        <attr name="sl_errorView" format="reference"/>
+        <attr name="sl_loadingView" format="reference"/>
+        <attr name="sl_defaultShowMode" format="enum">
+            <enum name="content" value="0"/>
+            <enum name="empty" value="1"/>
+            <enum name="error" value="2"/>
+            <enum name="loading" value="3"/>
+            <enum name="useless" value="4"/>
+        </attr>
+        <attr name="sl_toolShowMode" format="enum">
+            <enum name="content" value="0"/>
+            <enum name="empty" value="1"/>
+            <enum name="error" value="2"/>
+            <enum name="loading" value="3"/>
+            <enum name="useless" value="4"/>
+        </attr>
+    </declare-styleable>
+</resources>

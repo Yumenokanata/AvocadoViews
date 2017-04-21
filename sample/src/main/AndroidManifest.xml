@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="indi.yume.view.sample">
+    package="indi.yume.view.avocadoviews">
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
@@ -15,9 +16,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".DoubleRefreshActivity" />
-        <activity android:name=".RecyclerRefreshActivity" />
-        <activity android:name=".LoadingActivity"></activity>
+        <activity android:name=".ListActivity" />
+        <activity android:name=".LoadActivity" />
     </application>
 
 </manifest>

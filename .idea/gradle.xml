@@ -8,8 +8,11 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/adapterdatabinding" />
+            <option value="$PROJECT_DIR$/dsladapter" />
+            <option value="$PROJECT_DIR$/loadinglayout" />
             <option value="$PROJECT_DIR$/sample" />
+            <option value="$PROJECT_DIR$/statuslayout" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
