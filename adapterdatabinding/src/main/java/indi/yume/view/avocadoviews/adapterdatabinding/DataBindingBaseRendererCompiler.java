@@ -5,11 +5,14 @@ import android.databinding.ViewDataBinding;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Pair;
 import android.util.SparseArray;
 import android.view.View;
 
 import java.lang.ref.WeakReference;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import indi.yume.view.avocadoviews.dsladapter.BaseRenderer;
 import indi.yume.view.avocadoviews.dsladapter.functions.Function;
@@ -30,7 +33,7 @@ final class DataBindingBaseRendererCompiler
     @NonNull
     private final SparseArray<Object> handlers;
     private Function<Object, Integer> layoutFactory;
-    private Function<Object, Integer> itemId = staticFunction(BR_NO_ID);
+    private Set<Pair<Function<Object, Integer>, Function<Object, Object>>> itemSetters = new HashSet<>();
     private int collectionId = BR_NO_ID;
     @NonNull
     private Function<Object, Long> stableIdForItem = staticFunction(RecyclerView.NO_ID);
@@ -51,35 +54,49 @@ final class DataBindingBaseRendererCompiler
     @NonNull
     @Override
     public DBRPMain itemId(final int itemId) {
-        this.itemId = staticFunction(itemId);
+        this.itemSetters.add(new Pair<>(staticFunction(itemId), identityFunction()));
+        return this;
+    }
+
+    @NonNull
+    @Override
+    public DBRPMain itemId(int itemId, Function mapper) {
+        this.itemSetters.add(new Pair<>(staticFunction(itemId), (Function<Object, Object>) mapper));
         return this;
     }
 
     @NonNull
     @Override
     public DBRPMain itemIdForItem(@NonNull final Function itemIdForItem) {
-        this.itemId = checkNotNull(itemIdForItem);
+        this.itemSetters.add(new Pair<>(checkNotNull((Function<Object, Integer>)itemIdForItem), identityFunction()));
+        return this;
+    }
+
+    @NonNull
+    @Override
+    public DBRPMain itemIdForItem(@NonNull Function itemIdForItem, @NonNull Function mapper) {
+        this.itemSetters.add(new Pair<>(checkNotNull((Function<Object, Integer>)itemIdForItem), (Function<Object, Object>) mapper));
         return this;
     }
 
     @NonNull
     @Override
     public BaseRenderer forItem() {
-        return new CompiledRepositoryPresenter(itemId, layoutFactory, stableIdForItem,
+        return new CompiledRepositoryPresenter(itemSetters, layoutFactory, stableIdForItem,
                 handlers, recycleConfig, itemAsList(), collectionId);
     }
 
     @NonNull
     @Override
     public BaseRenderer<List<Object>> forList() {
-        return new CompiledRepositoryPresenter(itemId, layoutFactory, stableIdForItem,
+        return new CompiledRepositoryPresenter(itemSetters, layoutFactory, stableIdForItem,
                 handlers, recycleConfig, (Function) identityFunction(), collectionId);
     }
 
     @NonNull
     @Override
     public BaseRenderer forCollection(@NonNull final Function converter) {
-        return new CompiledRepositoryPresenter(itemId, layoutFactory, stableIdForItem, handlers,
+        return new CompiledRepositoryPresenter(itemSetters, layoutFactory, stableIdForItem, handlers,
                 recycleConfig, converter, collectionId);
     }
 
@@ -127,7 +144,7 @@ final class DataBindingBaseRendererCompiler
 
     private static final class CompiledRepositoryPresenter extends BaseRenderer {
         @NonNull
-        private final Function<Object, Integer> itemId;
+        private final Set<Pair<Function<Object, Integer>, Function<Object, Object>>> itemSetters;
         @NonNull
         private final Function<Object, List<Object>> converter;
         @NonNull
@@ -145,14 +162,14 @@ final class DataBindingBaseRendererCompiler
         private List items = emptyList();
 
         CompiledRepositoryPresenter(
-                @NonNull final Function<Object, Integer> itemId,
+                @NonNull final Set<Pair<Function<Object, Integer>, Function<Object, Object>>> itemSetters,
                 @NonNull final Function<Object, Integer> layoutId,
                 @NonNull final Function<Object, Long> stableIdForItem,
                 @NonNull final SparseArray<Object> handlers,
                 final int recycleConfig,
                 @NonNull final Function<Object, List<Object>> converter,
                 @NonNull final int collectionId) {
-            this.itemId = itemId;
+            this.itemSetters = itemSetters;
             this.collectionId = collectionId;
             this.converter = converter;
             this.layoutId = layoutId;
@@ -177,10 +194,12 @@ final class DataBindingBaseRendererCompiler
             final Object item = getItems(data).get(index);
             final View view = holder.itemView;
             final ViewDataBinding viewDataBinding = DataBindingUtil.bind(view);
-            final Integer itemVariable = itemId.apply(item);
-            if (itemVariable != BR_NO_ID) {
-                viewDataBinding.setVariable(itemVariable, item);
-                view.setTag(R.id.avocado__adapterdatabinding__item_id, itemVariable);
+            for(Pair<Function<Object, Integer>, Function<Object, Object>> pair : itemSetters) {
+                final Integer itemVariable = pair.first.apply(item);
+                if (itemVariable != BR_NO_ID) {
+                    viewDataBinding.setVariable(itemVariable, pair.second.apply(item));
+                    view.setTag(R.id.avocado__adapterdatabinding__item_id, itemVariable);
+                }
             }
             if (collectionId != BR_NO_ID) {
                 viewDataBinding.setVariable(collectionId, data);

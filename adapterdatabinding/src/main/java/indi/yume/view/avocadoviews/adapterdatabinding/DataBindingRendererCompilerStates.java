@@ -16,7 +16,13 @@ public interface DataBindingRendererCompilerStates {
     DBRPMain<T> itemId(int itemId);
 
     @NonNull
+    <R> DBRPMain<T> itemId(int itemId, Function<T, R> mapper);
+
+    @NonNull
     DBRPMain<T> itemIdForItem(@NonNull Function<T, Integer> itemIdForItem);
+
+    @NonNull
+    <R> DBRPMain<T> itemIdForItem(@NonNull Function<T, Integer> itemIdForItem, @NonNull Function<T, R> mapper);
 
     @NonNull
     DBRPMain<T> handler(int handlerId, @NonNull Object handler);

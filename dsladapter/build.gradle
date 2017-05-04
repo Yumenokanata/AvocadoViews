@@ -1,5 +1,4 @@
 buildscript {
-    ext.kotlin_version = '1.1.1'
     repositories {
         mavenCentral()
         jcenter()
@@ -7,7 +6,6 @@ buildscript {
 
     dependencies {
         classpath 'me.tatarka:gradle-retrolambda:3.6.0'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 

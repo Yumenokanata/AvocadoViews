@@ -46,6 +46,7 @@ public class ListActivity extends AppCompatActivity {
                         dataBindingRepositoryPresenterOf(ItemModel.class)
                                 .layout(R.layout.item_layout)
                                 .itemId(BR.model)
+                                .itemId(BR.content, m -> m.getContent() + "xxxx")
                                 .stableIdForItem(ItemModel::getId)
                                 .forList())
                 .addItem(DateFormat.getInstance().format(new Date()),
@@ -67,7 +68,7 @@ public class ListActivity extends AppCompatActivity {
 
     private Single<List<ItemModel>> dataSupplier(int pageIndex) {
         return Single.just(Models.genList(pageIndex * 10, 10))
-                .delay(3000, TimeUnit.MILLISECONDS)
+                .delay(300, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.io());
     }
 }

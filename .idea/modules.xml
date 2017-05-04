@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AvocadoViews.iml" filepath="$PROJECT_DIR$/AvocadoViews.iml" />
-      <module fileurl="file://$PROJECT_DIR$/AvocadoViews.iml" filepath="$PROJECT_DIR$/AvocadoViews.iml" />
       <module fileurl="file://$PROJECT_DIR$/adapterdatabinding/adapterdatabinding.iml" filepath="$PROJECT_DIR$/adapterdatabinding/adapterdatabinding.iml" />
       <module fileurl="file://$PROJECT_DIR$/dsladapter/dsladapter.iml" filepath="$PROJECT_DIR$/dsladapter/dsladapter.iml" />
       <module fileurl="file://$PROJECT_DIR$/loadinglayout/loadinglayout.iml" filepath="$PROJECT_DIR$/loadinglayout/loadinglayout.iml" />

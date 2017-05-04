@@ -4,6 +4,7 @@
 
     <data>
         <variable name="model" type="indi.yume.view.avocadoviews.ItemModel"/>
+        <variable name="content" type="String"/>
     </data>
 
     <LinearLayout
@@ -27,7 +28,7 @@
             android:id="@+id/content_text_view"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:text="@{model.content}"
+            android:text="@{content}"
             tools:text="This is content"
             android:padding="5dp"/>
 
