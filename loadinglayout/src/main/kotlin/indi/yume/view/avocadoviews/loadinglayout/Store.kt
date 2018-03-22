@@ -14,18 +14,18 @@ import java.lang.Exception
  */
 typealias ActionTrunk = (LoadingState) -> Action
 
-class Store(val realWorld: RealWorld) {
+class Store(val realWorld: RealWorld, initState: LoadingState = LoadingState.empty()) {
 
     internal val eventSubject = PublishSubject.create<ActionTrunk>()
 
-    internal val renderSubject = BehaviorSubject.createDefault(LoadingState.empty()).toSerialized()
+    internal val renderSubject = BehaviorSubject.createDefault(initState).toSerialized()
 
     var renderCallback: ((LoadingState) -> Unit)? = null
 
     init {
         eventSubject.toFlowable(BackpressureStrategy.DROP)
                 .observeOn(NewThreadScheduler())
-                .scan<StateData>(StateData(LoadingState.empty(), LoadingState.empty(), EmptyAction))
+                .scan<StateData>(StateData(initState, initState, EmptyAction))
                 { stateData, trunk ->
                     try {
                         val action = trunk(stateData.newState)

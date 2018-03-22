@@ -19,6 +19,7 @@ data class LayoutInitializer(
         val showData: (LoadingData<List<*>>) -> Unit) {
 
     class Builder<VH: RecyclerView.ViewHolder, T> {
+        private var initState: LoadingState = LoadingState.empty()
         private lateinit var provider: (LoadingData<List<T>>, Int) -> Single<LoadingResult<List<T>>>
         private lateinit var adapter: RecyclerView.Adapter<VH>
         private lateinit var layoutManager: RecyclerView.LayoutManager
@@ -26,6 +27,11 @@ data class LayoutInitializer(
         private lateinit var doForLoadMoreView: Effect<LoadMoreStatus>
         private lateinit var showData: Effect<LoadingData<List<T>>>
         private var renderOtherView: (LoadingState) -> Boolean = { false }
+
+        fun initState(initState: LoadingState): Builder<VH, T> {
+            this.initState = initState
+            return this
+        }
 
         fun provider(provider: (LoadingData<List<T>>, Int) -> Single<LoadingResult<List<T>>>): Builder<VH, T> {
             this.provider = provider
@@ -76,7 +82,7 @@ data class LayoutInitializer(
         @Suppress("UNCHECKED_CAST")
         fun build(): LayoutInitializer =
                 LayoutInitializer(
-                        store = Store(RealWorld(provider as (LoadingData<List<*>>, Int) -> Single<LoadingResult<List<*>>>)),
+                        store = Store(initState = initState, realWorld = RealWorld(provider as (LoadingData<List<*>>, Int) -> Single<LoadingResult<List<*>>>)),
                         adapter = adapter,
                         layoutManager = layoutManager,
                         loadMoreViewShownPred = loadMoreViewShownPred as (RecyclerView, RecyclerView.Adapter<*>) -> Boolean,
