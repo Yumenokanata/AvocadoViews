@@ -48,11 +48,11 @@ class LoadNext : Action() {
             return Observable.empty()
 
         return Observable.concat(Observable.just(oldState.copy(isLoadingMore = true)),
-                realWorld.provider(nextPage)
+                realWorld.provider(oldState.data, nextPage)
                         .map { result ->
                             result.dealResult (oldState) { data, state ->
                                 state.copy(pageNumber = nextPage,
-                                        data = state.data + data,
+                                        data = state.data.map { it + data }.or(HasData(data)),
                                         isLoadingMore = false)
                             }
                         }
@@ -67,11 +67,11 @@ class Refresh : Action() {
             return Observable.empty()
 
         return Observable.concat(Observable.just(oldState.copy(isRefresh = true)),
-                realWorld.provider(nextPage)
+                realWorld.provider(oldState.data, nextPage)
                         .map { result ->
                             result.dealResult (oldState) { data, state ->
                                 state.copy(pageNumber = nextPage,
-                                        data = data,
+                                        data = HasData(data),
                                         isRefresh = false)
                             }
                         }

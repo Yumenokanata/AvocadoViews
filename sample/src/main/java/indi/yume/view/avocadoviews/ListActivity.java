@@ -59,6 +59,11 @@ public class ListActivity extends AppCompatActivity {
 
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        findViewById(R.id.load_next_button).setOnClickListener(v -> {
+            index++;
+            adapter.update();
+        });
     }
 
     private List<ItemModel> provideData(int pageIndex) {

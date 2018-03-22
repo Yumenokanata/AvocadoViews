@@ -15,17 +15,19 @@ data class LayoutInitializer(
         val layoutManager: RecyclerView.LayoutManager,
         val loadMoreViewShownPred: (RecyclerView, RecyclerView.Adapter<*>) -> Boolean,
         val doForLoadMoreView: (LoadMoreStatus) -> Unit,
-        val showData: (List<*>) -> Unit) {
+        val renderOtherView: (LoadingState) -> Boolean,
+        val showData: (LoadingData<List<*>>) -> Unit) {
 
     class Builder<VH: RecyclerView.ViewHolder, T> {
-        private lateinit var provider: (Int) -> Single<LoadingResult<List<T>>>
+        private lateinit var provider: (LoadingData<List<T>>, Int) -> Single<LoadingResult<List<T>>>
         private lateinit var adapter: RecyclerView.Adapter<VH>
         private lateinit var layoutManager: RecyclerView.LayoutManager
         private var loadMoreViewShownPred: (RecyclerView, RecyclerView.Adapter<VH>) -> Boolean = defaultLoadMoreShownPred
         private lateinit var doForLoadMoreView: Effect<LoadMoreStatus>
-        private lateinit var showData: Effect<List<T>>
+        private lateinit var showData: Effect<LoadingData<List<T>>>
+        private var renderOtherView: (LoadingState) -> Boolean = { false }
 
-        fun provider(provider: (Int) -> Single<LoadingResult<List<T>>>): Builder<VH, T> {
+        fun provider(provider: (LoadingData<List<T>>, Int) -> Single<LoadingResult<List<T>>>): Builder<VH, T> {
             this.provider = provider
             return this
         }
@@ -48,7 +50,7 @@ data class LayoutInitializer(
 
         fun loadMoreViewShownPred(loadMoreView: View): Builder<VH, T> {
             this.loadMoreViewShownPred = { recyclerView, adapter ->
-                (0..adapter.itemCount - 1)
+                (0..recyclerView.childCount - 1)
                         .map { recyclerView.childCount - it - 1 }
                         .map { recyclerView.getChildAt(it) }
                         .any { it === loadMoreView }
@@ -61,7 +63,12 @@ data class LayoutInitializer(
             return this
         }
 
-        fun showData(showData: Effect<List<T>>): Builder<VH, T> {
+        fun renderOtherView(renderOtherView: (LoadingState) -> Boolean): Builder<VH, T> {
+            this.renderOtherView = renderOtherView
+            return this
+        }
+
+        fun showData(showData: Effect<LoadingData<List<T>>>): Builder<VH, T> {
             this.showData = showData
             return this
         }
@@ -69,12 +76,13 @@ data class LayoutInitializer(
         @Suppress("UNCHECKED_CAST")
         fun build(): LayoutInitializer =
                 LayoutInitializer(
-                        store = Store(RealWorld(provider as (Int) -> Single<LoadingResult<List<*>>>)),
+                        store = Store(RealWorld(provider as (LoadingData<List<*>>, Int) -> Single<LoadingResult<List<*>>>)),
                         adapter = adapter,
                         layoutManager = layoutManager,
                         loadMoreViewShownPred = loadMoreViewShownPred as (RecyclerView, RecyclerView.Adapter<*>) -> Boolean,
+                        renderOtherView = renderOtherView,
                         doForLoadMoreView = { doForLoadMoreView.apply(it) },
-                        showData = { showData.apply(it as List<T>) })
+                        showData = { showData.apply(it as LoadingData<List<T>>) })
 
         companion object {
             @JvmStatic

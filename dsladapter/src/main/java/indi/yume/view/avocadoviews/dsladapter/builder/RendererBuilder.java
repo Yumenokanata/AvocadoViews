@@ -4,15 +4,12 @@ import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import lombok.experimental.UtilityClass;
-
 import static indi.yume.view.avocadoviews.dsladapter.builder.BaseRendererCompilerStates.*;
 
 /**
  * Created by yume on 17-4-20.
  *
  */
-@UtilityClass
 public class RendererBuilder {
     @SuppressWarnings({"unchecked", "UnusedParameters"})
     @NonNull

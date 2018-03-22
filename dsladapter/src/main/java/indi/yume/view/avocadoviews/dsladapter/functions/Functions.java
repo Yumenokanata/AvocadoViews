@@ -5,12 +5,9 @@ import android.support.annotation.NonNull;
 import java.util.Collections;
 import java.util.List;
 
-import lombok.experimental.UtilityClass;
-
 /**
  * Created by yume on 17-4-20.
  */
-@UtilityClass
 public class Functions {
     public static <T1, T2> BiConsumer<T1, T2> nullBiConsumer() {
         return (t1, t2) -> {};

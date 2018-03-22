@@ -2,12 +2,9 @@ package indi.yume.view.avocadoviews.dsladapter;
 
 import android.support.annotation.NonNull;
 
-import lombok.experimental.UtilityClass;
-
 /**
  * Created by yume on 17-4-20.
  */
-@UtilityClass
 public class Predicates {
     public static void checkArgument(final boolean expression, @NonNull final String errorMessage) {
         if (!expression) {

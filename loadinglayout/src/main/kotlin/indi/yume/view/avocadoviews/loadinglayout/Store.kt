@@ -2,8 +2,10 @@ package indi.yume.view.avocadoviews.loadinglayout
 
 import android.util.Log
 import io.reactivex.BackpressureStrategy
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.internal.schedulers.NewThreadScheduler
+import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import java.lang.Exception
 
@@ -16,7 +18,7 @@ class Store(val realWorld: RealWorld) {
 
     internal val eventSubject = PublishSubject.create<ActionTrunk>()
 
-    internal val renderSubject = PublishSubject.create<LoadingState>().toSerialized()
+    internal val renderSubject = BehaviorSubject.createDefault(LoadingState.empty()).toSerialized()
 
     var renderCallback: ((LoadingState) -> Unit)? = null
 
@@ -53,6 +55,8 @@ class Store(val realWorld: RealWorld) {
     }
 
     private fun render(state: LoadingState) = renderSubject.onNext(state)
+
+    fun bind(): Observable<LoadingState> = renderSubject
 
     fun dispatch(action: Action) {
         eventSubject.onNext { action }

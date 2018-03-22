@@ -1,0 +1,81 @@
+package indi.yume.view.avocadoviews.loadinglayout
+
+import android.support.v7.widget.RecyclerView
+import android.view.View
+import android.widget.AbsListView
+
+/**
+ * Created by yume on 18-3-22.
+ */
+
+class LoadingCore(
+        val loadingLayoutViews: LoadingLayoutViews,
+        val manager: LayoutInitializer
+) {
+    init {
+        loadingLayoutViews.recyclerView.addOnScrollListener(object: RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, scrollState: Int) {
+                if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE
+                        && !(loadingLayoutViews.swipeRefreshLayout?.isRefreshing ?: false)
+                        && !manager.store.bind().map { it.isRefresh }.first(false).blockingGet())
+                    manager.store.dispatch(RenderAction)
+            }
+        })
+
+        loadingLayoutViews.swipeRefreshLayout?.setOnRefreshListener { refresh() }
+        loadingLayoutViews.recyclerView.adapter = manager.adapter
+        loadingLayoutViews.recyclerView.layoutManager = manager.layoutManager
+        manager.store.renderCallback = this::render
+
+        manager.store.dispatch(RenderAction)
+    }
+
+    fun loadData() = manager.store.dispatch(LoadNext())
+
+    fun refresh() = manager.store.dispatch(Refresh())
+
+    private fun render(state: LoadingState) {
+        if (!manager.renderOtherView(state)) {
+            if(state.data is HasData) {
+                loadingLayoutViews.swipeRefreshLayout?.apply {
+                    visibility = if (state.data.t.isEmpty() && state.isRefresh) View.INVISIBLE else View.VISIBLE
+                    isRefreshing = !state.data.t.isEmpty() && state.isRefresh
+                }
+                loadingLayoutViews.recyclerView.apply {
+                    visibility = if (state.data.t.isEmpty() && state.isRefresh) View.INVISIBLE else View.VISIBLE
+                }
+                loadingLayoutViews.noContentLoadView?.apply {
+                    visibility = if (state.data.t.isEmpty() && state.isRefresh) View.VISIBLE else View.INVISIBLE
+                }
+            } else {
+                loadingLayoutViews.swipeRefreshLayout?.apply {
+                    visibility = if (state.isRefresh && loadingLayoutViews.noContentLoadView != null) View.INVISIBLE else View.VISIBLE
+                }
+                loadingLayoutViews.recyclerView.apply {
+                    visibility = if (state.isRefresh && loadingLayoutViews.noContentLoadView != null) View.INVISIBLE else View.VISIBLE
+                }
+                loadingLayoutViews.noContentLoadView?.apply {
+                    visibility = if (state.isRefresh) View.VISIBLE else View.INVISIBLE
+                }
+            }
+        }
+
+        manager.showData(state.data)
+        manager.doForLoadMoreView.apply {
+            when {
+                !state.enableLoadMore || !state.hasMore || state.data.fold({ true }, { it.isEmpty() }) || state.isRefresh -> invoke(LoadMoreStatus.DISABLE)
+                state.isLoadingMore -> invoke(LoadMoreStatus.LOADING)
+                else ->
+                    if(manager.loadMoreViewShownPred(loadingLayoutViews.recyclerView,
+                                    manager.adapter))
+                        invoke(LoadMoreStatus.NORMAL)
+                    else
+                        invoke(LoadMoreStatus.INVISIBLE)
+            }
+        }
+    }
+
+    fun onDetachedFromWindow() {
+        manager.store.unsubscribe()
+    }
+}

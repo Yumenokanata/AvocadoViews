@@ -14,16 +14,15 @@ import android.view.ViewGroup
 data class LoadingLayoutRes(
         @LayoutRes val layoutResId: Int,
         @IdRes val recyclerViewId: Int,
-        @IdRes val swipeRefreshLayoutId: Int,
-        @IdRes val noContentLoadProgressId: Int) {
+        @IdRes val swipeRefreshLayoutId: Int?,
+        @IdRes val noContentLoadProgressId: Int?) {
 
     fun bind(context: Context, parent: ViewGroup): LoadingLayoutViews {
         val view = View.inflate(context, layoutResId, parent)
         return LoadingLayoutViews(
-                layout = view,
-                recyclerView = view.find<RecyclerView>(recyclerViewId),
+                recyclerView = view.findViewById(recyclerViewId),
                 swipeRefreshLayout = view.find<SwipeRefreshLayout>(swipeRefreshLayoutId),
-                noContentLoadProgress = view.find<View>(noContentLoadProgressId))
+                noContentLoadView = view.find<View>(noContentLoadProgressId))
     }
 
     class Builder {
@@ -77,7 +76,6 @@ data class LoadingLayoutRes(
 }
 
 data class LoadingLayoutViews(
-        val layout: View,
         val recyclerView: RecyclerView,
-        val swipeRefreshLayout: SwipeRefreshLayout,
-        val noContentLoadProgress: View)
+        val swipeRefreshLayout: SwipeRefreshLayout? = null,
+        val noContentLoadView: View? = null)

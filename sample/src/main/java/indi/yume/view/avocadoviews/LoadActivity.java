@@ -1,5 +1,6 @@
 package indi.yume.view.avocadoviews;
 
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import indi.yume.view.avocadoviews.dsladapter.RendererAdapter;
 import indi.yume.view.avocadoviews.loadinglayout.LayoutInitializer;
 import indi.yume.view.avocadoviews.loadinglayout.LoadMoreStatus;
+import indi.yume.view.avocadoviews.loadinglayout.LoadingData;
 import indi.yume.view.avocadoviews.loadinglayout.LoadingLayout;
 import indi.yume.view.avocadoviews.loadinglayout.LoadingResult;
 import io.reactivex.Single;
@@ -31,8 +33,12 @@ public class LoadActivity extends AppCompatActivity {
 
     @Data
     class State {
-        @Wither private final List<ItemModel> data;
-        @Wither private final LoadMoreStatus status;
+        @Wither
+        @NonNull
+        private final List<ItemModel> data;
+        @Wither
+        @NonNull
+        private final LoadMoreStatus status;
     }
 
     private RendererAdapter adapter;
@@ -71,7 +77,7 @@ public class LoadActivity extends AppCompatActivity {
                     if(loadMoreStatus == LoadMoreStatus.NORMAL)
                         loadingLayout.loadData();
                 })
-                .showData(data -> render(state.withData(data)))
+                .showData(data -> render(state.withData(data.fold(Collections::emptyList, l -> l))))
                 .build();
 
         loadingLayout.init(initializer);
@@ -82,7 +88,7 @@ public class LoadActivity extends AppCompatActivity {
         adapter.update();
     }
 
-    private Single<LoadingResult<List<ItemModel>>> dataSupplier(int pageIndex) {
+    private Single<LoadingResult<List<ItemModel>>> dataSupplier(LoadingData<? extends List<? extends ItemModel>> oldData, int pageIndex) {
         if(pageIndex > 3)
             return Single.just(LoadingResult.noMore());
         return Single.just(Models.genList(pageIndex * 4, 4))

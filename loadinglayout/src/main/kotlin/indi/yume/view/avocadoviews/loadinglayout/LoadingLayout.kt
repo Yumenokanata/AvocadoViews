@@ -17,7 +17,7 @@ class LoadingLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
 
     val loadingLayoutViews: LoadingLayoutViews
 
-    private lateinit var manager: LayoutInitializer
+    private lateinit var core: LoadingCore
 
     init {
         val loadingLayoutRes = LoadingLayoutRes.defaultLayout()
@@ -25,55 +25,15 @@ class LoadingLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
     }
 
     fun init(layoutManager: LayoutInitializer) {
-        this.manager = layoutManager
-        init()
+        this.core = LoadingCore(loadingLayoutViews, layoutManager)
     }
 
-    fun loadData() = manager.store.dispatch(LoadNext())
+    fun loadData() = core.loadData()
 
-    fun refresh() = manager.store.dispatch(Refresh())
-
-    private fun init() {
-        loadingLayoutViews.recyclerView.addOnScrollListener(object: RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, scrollState: Int) {
-                if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE
-                        && !loadingLayoutViews.swipeRefreshLayout.isRefreshing)
-                    manager.store.dispatch(RenderAction)
-            }
-        })
-        loadingLayoutViews.swipeRefreshLayout.setOnRefreshListener { refresh() }
-        loadingLayoutViews.recyclerView.adapter = manager.adapter
-        loadingLayoutViews.recyclerView.layoutManager = manager.layoutManager
-        manager.store.renderCallback = this::render
-
-        manager.store.dispatch(RenderAction)
-    }
+    fun refresh() = core.refresh()
 
     override fun onDetachedFromWindow() {
-        manager.store.unsubscribe()
+        core.onDetachedFromWindow()
         super.onDetachedFromWindow()
-    }
-
-    private fun render(state: LoadingState) {
-        loadingLayoutViews.swipeRefreshLayout.apply {
-            visibility = if(state.data.isEmpty() && state.isRefresh) View.INVISIBLE else View.VISIBLE
-            isRefreshing = !state.data.isEmpty() && state.isRefresh
-        }
-        loadingLayoutViews.noContentLoadProgress.apply {
-            visibility = if(state.data.isEmpty() && state.isRefresh) View.VISIBLE else View.INVISIBLE
-        }
-        manager.showData(state.data)
-        manager.doForLoadMoreView.apply {
-            when {
-                !state.enableLoadMore || !state.hasMore || state.data.isEmpty() || state.isRefresh -> invoke(LoadMoreStatus.DISABLE)
-                state.isLoadingMore -> invoke(LoadMoreStatus.LOADING)
-                else ->
-                    if(manager.loadMoreViewShownPred(loadingLayoutViews.recyclerView,
-                            manager.adapter))
-                        invoke(LoadMoreStatus.NORMAL)
-                    else
-                        invoke(LoadMoreStatus.INVISIBLE)
-            }
-        }
     }
 }

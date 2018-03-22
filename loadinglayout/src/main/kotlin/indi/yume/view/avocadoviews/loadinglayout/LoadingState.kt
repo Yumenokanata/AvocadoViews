@@ -11,7 +11,7 @@ data class LoadingState (
         val enableLoadMore: Boolean = true,
 
         val pageNumber: Int = firstPageNum,
-        val data: List<*> = emptyList<Any>(),
+        val data: LoadingData<List<*>> = NoData,
         val hasMore: Boolean = true,
         val isRefresh: Boolean = false,
         val isLoadingMore: Boolean = false
@@ -22,6 +22,6 @@ data class LoadingState (
 }
 
 data class RealWorld(
-        val provider: (Int) -> Single<LoadingResult<List<*>>>
+        val provider: (LoadingData<List<*>>, Int) -> Single<LoadingResult<List<*>>>
 )
 

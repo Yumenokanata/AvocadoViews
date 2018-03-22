@@ -3,7 +3,10 @@ package indi.yume.view.avocadoviews.dsladapter;
 import android.support.annotation.NonNull;
 import android.support.v4.util.LongSparseArray;
 import android.support.v7.widget.RecyclerView;
+import android.util.SparseArray;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
@@ -35,30 +38,30 @@ public class RendererAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         @NonNull
         final List<Supplier<Object>> suppliers = new ArrayList<>();
         @NonNull
-        final List<BaseRenderer<Object>> presenters = new ArrayList<>();
+        final List<Renderer<Object>> presenters = new ArrayList<>();
         @NonNull
         final LongSparseArray<Boolean> staticPresenters = new LongSparseArray<>();
 
         @NonNull
         public <T> Builder add(@NonNull final Supplier<T> supplier,
-                               @NonNull final BaseRenderer<T> presenter) {
+                               @NonNull final Renderer<T> presenter) {
             @SuppressWarnings("unchecked")
             final Supplier<Object> untypedRepository = (Supplier<Object>) supplier;
             suppliers.add(untypedRepository);
             @SuppressWarnings("unchecked")
-            final BaseRenderer<Object> untypedPresenter =
-                    (BaseRenderer<Object>) checkNotNull(presenter);
+            final Renderer<Object> untypedPresenter =
+                    (Renderer<Object>) checkNotNull(presenter);
             presenters.add(untypedPresenter);
             return this;
         }
 
         @NonNull
         public <T> Builder addItem(@NonNull final T item,
-                                   @NonNull final BaseRenderer<T> presenter) {
+                                   @NonNull final Renderer<T> presenter) {
             suppliers.add(staticSupplier((Object) item));
             @SuppressWarnings("unchecked")
-            final BaseRenderer<Object> untypedPresenter =
-                    (BaseRenderer<Object>) checkNotNull(presenter);
+            final Renderer<Object> untypedPresenter =
+                    (Renderer<Object>) checkNotNull(presenter);
             staticPresenters.put(presenters.size(), TRUE);
             presenters.add(untypedPresenter);
             return this;
@@ -86,13 +89,21 @@ public class RendererAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @NonNull
     private final Object[] data;
     @NonNull
-    private final BaseRenderer<Object>[] presenters;
+    private final Renderer<Object>[] presenters;
     @NonNull
     private final LongSparseArray<Boolean> staticPresenters;
     @NonNull
-    private final Map<RecyclerView.ViewHolder, BaseRenderer<Object>> presenterForViewHolder;
+    private final Map<RecyclerView.ViewHolder, Renderer<Object>> presenterForViewHolder;
     @NonNull
     private final int[] endPositions;
+
+    /**
+     * Because the order of function {@link #getItemViewType(int)} and
+     * {@link #onCreateViewHolder(ViewGroup, int)} calls is uncertain,
+     * only the last Position will be saved for same type.
+     */
+    @NonNull
+    private final SparseIntArray typeToPositionMap = new SparseIntArray();
 
     private boolean dataInvalid;
     private int resolvedRepositoryIndex;
@@ -109,8 +120,8 @@ public class RendererAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 (Supplier<Object>[]) new Supplier[count]);
 
         @SuppressWarnings("unchecked")
-        final BaseRenderer<Object>[] presenters = builder.presenters.toArray(
-                (BaseRenderer<Object>[]) new BaseRenderer[count]);
+        final Renderer<Object>[] presenters = builder.presenters.toArray(
+                (Renderer<Object>[]) new Renderer[count]);
 
         this.data = new Object[count];
         this.repositoryCount = count;
@@ -146,15 +157,17 @@ public class RendererAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         resolveIndices(position);
         int resolvedRepositoryIndex = this.resolvedRepositoryIndex;
         int resolvedItemIndex = this.resolvedItemIndex;
-        return presenters[resolvedRepositoryIndex].getLayoutResId(
+        int type = presenters[resolvedRepositoryIndex].getItemViewType(
                 data[resolvedRepositoryIndex], resolvedItemIndex);
+        typeToPositionMap.put(type, position);
+        return type;
     }
 
     @Override
     public final long getItemId(final int position) {
         resolveIndices(position);
         final int resolvedRepositoryIndex = this.resolvedRepositoryIndex;
-        final BaseRenderer<Object> presenter = presenters[resolvedRepositoryIndex];
+        final Renderer<Object> presenter = presenters[resolvedRepositoryIndex];
         final long itemId = presenter.getItemId(data[resolvedRepositoryIndex], this.resolvedItemIndex);
         if (staticPresenters.size() > 0) {
             if (staticPresenters.get(resolvedRepositoryIndex) == null) {
@@ -167,9 +180,13 @@ public class RendererAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(final ViewGroup parent,
-                                                      final int layoutResourceId) {
-        return new RecyclerView.ViewHolder(
-                LayoutInflater.from(parent.getContext()).inflate(layoutResourceId, parent, false)) {};
+                                                      final int viewType) {
+        int typeLastPosition = typeToPositionMap.get(viewType);
+
+        resolveIndices(typeLastPosition);
+        int resolvedRepositoryIndex = this.resolvedRepositoryIndex;
+        int resolvedItemIndex = this.resolvedItemIndex;
+        return presenters[resolvedRepositoryIndex].onCreateViewHolder(parent, viewType);
     }
 
     @Override
@@ -177,7 +194,7 @@ public class RendererAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         resolveIndices(position);
         int resolvedRepositoryIndex = this.resolvedRepositoryIndex;
         int resolvedItemIndex = this.resolvedItemIndex;
-        final BaseRenderer<Object> presenter = presenters[resolvedRepositoryIndex];
+        final Renderer<Object> presenter = presenters[resolvedRepositoryIndex];
         presenterForViewHolder.put(holder, presenter);
         presenter.bind(data[resolvedRepositoryIndex], resolvedItemIndex, holder);
     }
@@ -194,7 +211,7 @@ public class RendererAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     private void recycle(@NonNull final RecyclerView.ViewHolder holder) {
-        final BaseRenderer<Object> presenter = presenterForViewHolder.remove(holder);
+        final Renderer<Object> presenter = presenterForViewHolder.remove(holder);
         if (presenter != null) {
             presenter.recycle(holder);
         }
