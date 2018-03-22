@@ -8,25 +8,33 @@ import android.widget.AbsListView
  * Created by yume on 18-3-22.
  */
 
-class LoadingCore(
-        val loadingLayoutViews: LoadingLayoutViews,
-        val manager: LayoutInitializer
-) {
-    init {
-        loadingLayoutViews.recyclerView.addOnScrollListener(object: RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, scrollState: Int) {
-                if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE
-                        && !(loadingLayoutViews.swipeRefreshLayout?.isRefreshing ?: false)
-                        && !manager.store.bind().map { it.isRefresh }.first(false).blockingGet())
-                    manager.store.dispatch(RenderAction)
-            }
-        })
+class LoadingCore(val loadingLayoutViews: LoadingLayoutViews) {
+    private lateinit var manager: LayoutInitializer
 
+    private val onScrollListener: RecyclerView.OnScrollListener = object: RecyclerView.OnScrollListener() {
+        override fun onScrollStateChanged(recyclerView: RecyclerView, scrollState: Int) {
+            if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE
+                    && !(loadingLayoutViews.swipeRefreshLayout?.isRefreshing ?: false)
+                    && !manager.store.bind().map { it.isRefresh }.first(false).blockingGet())
+                manager.store.dispatch(RenderAction)
+        }
+    }
+
+    init {
+        loadingLayoutViews.recyclerView.addOnScrollListener(onScrollListener)
         loadingLayoutViews.swipeRefreshLayout?.setOnRefreshListener { refresh() }
+    }
+
+    fun init(initializer: LayoutInitializer) {
+        manager = initializer
+        init()
+    }
+
+    private fun init() {
         loadingLayoutViews.recyclerView.adapter = manager.adapter
         loadingLayoutViews.recyclerView.layoutManager = manager.layoutManager
-        manager.store.renderCallback = this::render
 
+        manager.store.renderCallback = this::render
         manager.store.dispatch(RenderAction)
     }
 

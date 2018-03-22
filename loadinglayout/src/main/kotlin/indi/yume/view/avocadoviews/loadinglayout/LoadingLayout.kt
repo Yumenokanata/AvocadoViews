@@ -17,15 +17,17 @@ class LoadingLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
 
     val loadingLayoutViews: LoadingLayoutViews
 
-    private lateinit var core: LoadingCore
+    private val core: LoadingCore
 
     init {
         val loadingLayoutRes = LoadingLayoutRes.defaultLayout()
         loadingLayoutViews = loadingLayoutRes.bind(context, this)
+
+        core = LoadingCore(loadingLayoutViews)
     }
 
-    fun init(layoutManager: LayoutInitializer) {
-        this.core = LoadingCore(loadingLayoutViews, layoutManager)
+    fun init(initializer: LayoutInitializer) {
+        core.init(initializer)
     }
 
     fun loadData() = core.loadData()
