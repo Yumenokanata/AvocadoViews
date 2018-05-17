@@ -5,6 +5,15 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <TextView
+        android:id="@+id/empty_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="EmptyView"
+        android:textSize="30sp"
+        android:gravity="center"
+        android:visibility="gone"/>
+
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_layout"
         android:layout_width="match_parent"

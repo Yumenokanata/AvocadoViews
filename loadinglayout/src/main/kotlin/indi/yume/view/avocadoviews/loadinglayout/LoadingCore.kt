@@ -44,28 +44,43 @@ class LoadingCore(val loadingLayoutViews: LoadingLayoutViews) {
 
     private fun render(state: LoadingState) {
         if (!manager.renderOtherView(state)) {
-            if(state.data is HasData) {
-                loadingLayoutViews.swipeRefreshLayout?.apply {
-                    visibility = if (state.data.t.isEmpty() && state.isRefresh) View.INVISIBLE else View.VISIBLE
-                    isRefreshing = !state.data.t.isEmpty() && state.isRefresh
+                if (state.data is HasData) {
+                    loadingLayoutViews.emptyView?.visibility = View.INVISIBLE
+                    loadingLayoutViews.swipeRefreshLayout?.apply {
+                        visibility = if (state.data.t.isEmpty() && state.isRefresh) View.INVISIBLE else View.VISIBLE
+                        isRefreshing = !state.data.t.isEmpty() && state.isRefresh
+                    }
+                    loadingLayoutViews.recyclerView.apply {
+                        visibility = if (state.data.t.isEmpty() && state.isRefresh) View.INVISIBLE else View.VISIBLE
+                    }
+                    loadingLayoutViews.noContentLoadView?.apply {
+                        visibility = if (state.data.t.isEmpty() && state.isRefresh) View.VISIBLE else View.INVISIBLE
+                    }
+                } else {
+                    if (loadingLayoutViews.emptyView == null) {
+                        loadingLayoutViews.swipeRefreshLayout?.apply {
+                            visibility = if (state.isRefresh && loadingLayoutViews.noContentLoadView != null) View.INVISIBLE else View.VISIBLE
+                            isRefreshing = state.isRefresh
+                        }
+                        loadingLayoutViews.recyclerView.apply {
+                            visibility = if (state.isRefresh && loadingLayoutViews.noContentLoadView != null) View.INVISIBLE else View.VISIBLE
+                        }
+                        loadingLayoutViews.noContentLoadView?.apply {
+                            visibility = if (state.isRefresh) View.VISIBLE else View.INVISIBLE
+                        }
+                    } else {
+                        loadingLayoutViews.emptyView.visibility = if (!state.isRefresh) View.VISIBLE else View.INVISIBLE
+                        loadingLayoutViews.swipeRefreshLayout?.apply {
+                            visibility = if (state.isRefresh && loadingLayoutViews.noContentLoadView != null) View.INVISIBLE else View.VISIBLE
+                            isRefreshing = state.isRefresh
+                        }
+                        loadingLayoutViews.recyclerView.visibility =
+                                if (state.isRefresh && loadingLayoutViews.noContentLoadView == null) View.VISIBLE else View.INVISIBLE
+                        loadingLayoutViews.noContentLoadView?.apply {
+                            visibility = if (state.isRefresh) View.VISIBLE else View.INVISIBLE
+                        }
+                    }
                 }
-                loadingLayoutViews.recyclerView.apply {
-                    visibility = if (state.data.t.isEmpty() && state.isRefresh) View.INVISIBLE else View.VISIBLE
-                }
-                loadingLayoutViews.noContentLoadView?.apply {
-                    visibility = if (state.data.t.isEmpty() && state.isRefresh) View.VISIBLE else View.INVISIBLE
-                }
-            } else {
-                loadingLayoutViews.swipeRefreshLayout?.apply {
-                    visibility = if (state.isRefresh && loadingLayoutViews.noContentLoadView != null) View.INVISIBLE else View.VISIBLE
-                }
-                loadingLayoutViews.recyclerView.apply {
-                    visibility = if (state.isRefresh && loadingLayoutViews.noContentLoadView != null) View.INVISIBLE else View.VISIBLE
-                }
-                loadingLayoutViews.noContentLoadView?.apply {
-                    visibility = if (state.isRefresh) View.VISIBLE else View.INVISIBLE
-                }
-            }
         }
 
         manager.showData(state.data)

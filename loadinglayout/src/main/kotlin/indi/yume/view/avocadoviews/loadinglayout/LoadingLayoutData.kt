@@ -15,6 +15,7 @@ data class LoadingLayoutRes(
         @LayoutRes val layoutResId: Int,
         @IdRes val recyclerViewId: Int,
         @IdRes val swipeRefreshLayoutId: Int?,
+        @IdRes val emptyViewId: Int?,
         @IdRes val noContentLoadProgressId: Int?) {
 
     fun bind(context: Context, parent: ViewGroup): LoadingLayoutViews {
@@ -22,31 +23,32 @@ data class LoadingLayoutRes(
         return LoadingLayoutViews(
                 recyclerView = view.findViewById(recyclerViewId),
                 swipeRefreshLayout = view.find<SwipeRefreshLayout>(swipeRefreshLayoutId),
+                emptyView = view.find(emptyViewId),
                 noContentLoadView = view.find<View>(noContentLoadProgressId))
     }
 
-    class Builder {
-        private var layoutResId: Int = 0
+    class Builder(@LayoutRes val layoutResId: Int) {
         private var recyclerViewId: Int = 0
-        private var swipeRefreshLayoutId: Int = 0
-        private var noContentLoadProgressId: Int = 0
+        private var swipeRefreshLayoutId: Int? = null
+        private var emptyViewId: Int? = null
+        private var noContentLoadProgressId: Int? = null
 
-        fun withLayoutResId(value: Int): Builder {
-            layoutResId = value
-            return this
-        }
-
-        fun withRecyclerViewId(value: Int): Builder {
+        fun withRecyclerViewId(@IdRes value: Int): Builder {
             recyclerViewId = value
             return this
         }
 
-        fun withSwipeRefreshLayoutId(value: Int): Builder {
+        fun withSwipeRefreshLayoutId(@IdRes value: Int): Builder {
             swipeRefreshLayoutId = value
             return this
         }
 
-        fun withNoContentLoadProgressId(value: Int): Builder {
+        fun withEmptyViewId(@IdRes value: Int): Builder {
+            emptyViewId = value
+            return this
+        }
+
+        fun withNoContentLoadProgressId(@IdRes value: Int): Builder {
             noContentLoadProgressId = value
             return this
         }
@@ -56,13 +58,14 @@ data class LoadingLayoutRes(
                     layoutResId = layoutResId,
                     recyclerViewId = recyclerViewId,
                     swipeRefreshLayoutId = swipeRefreshLayoutId,
+                    emptyViewId = emptyViewId,
                     noContentLoadProgressId = noContentLoadProgressId)
         }
     }
 
     companion object {
         @JvmStatic
-        fun builder(): Builder = Builder()
+        fun builder(@LayoutRes layoutResId: Int): Builder = Builder(layoutResId)
 
         @JvmStatic
         fun defaultLayout(): LoadingLayoutRes =
@@ -70,6 +73,7 @@ data class LoadingLayoutRes(
                         layoutResId = R.layout.double_refresh_recycler_layout,
                         recyclerViewId = R.id.recycler_view,
                         swipeRefreshLayoutId = R.id.swipe_layout,
+                        emptyViewId = null,
                         noContentLoadProgressId = R.id.no_content_load_progress_view
                 )
     }
@@ -78,4 +82,5 @@ data class LoadingLayoutRes(
 data class LoadingLayoutViews(
         val recyclerView: RecyclerView,
         val swipeRefreshLayout: SwipeRefreshLayout? = null,
+        val emptyView: View? = null,
         val noContentLoadView: View? = null)
