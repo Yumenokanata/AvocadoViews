@@ -34,6 +34,8 @@ class LoadingLayout(context: Context, attrs: AttributeSet?) : FrameLayout(contex
 
     fun refresh() = core.refresh()
 
+    fun clearData() = core.clearData()
+
     override fun onDetachedFromWindow() {
         core.onDetachedFromWindow()
         super.onDetachedFromWindow()

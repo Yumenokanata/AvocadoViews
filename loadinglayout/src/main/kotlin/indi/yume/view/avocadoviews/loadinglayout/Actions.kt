@@ -87,3 +87,15 @@ class Refresh : Action() {
                         .toObservable())
     }
 }
+
+class ClearData : Action() {
+    override fun effect(realWorld: RealWorld, oldState: LoadingState): Observable<LoadingState> {
+        if(oldState.isLoadingMore || oldState.isRefresh)
+            return Observable.empty()
+
+        return Observable.just(oldState.copy(
+                pageNumber = oldState.firstPageNum,
+                data = NoData,
+                hasMore = true))
+    }
+}

@@ -42,6 +42,8 @@ class LoadingCore(val loadingLayoutViews: LoadingLayoutViews) {
 
     fun refresh() = manager.store.dispatch(Refresh())
 
+    fun clearData() = manager.store.dispatch(ClearData())
+
     private fun render(state: LoadingState) {
         if (!manager.renderOtherView(state)) {
                 if (state.data is HasData) {
