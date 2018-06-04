@@ -53,7 +53,7 @@ class LoadNext : Action() {
     fun LoadingResult<List<*>>.dealResult(oldState: LoadingState,
                                           onSuccess: (List<*>, LoadingState) -> LoadingState): LoadingState =
             when (this) {
-                is Success -> onSuccess(data, oldState)
+                is Success -> onSuccess(data, oldState).copy(hasMore = true)
                 is LastData -> onSuccess(data, oldState).copy(hasMore = false)
                 is NoMoreData -> oldState.copy(hasMore = false)
                 is Failure -> oldState
@@ -72,7 +72,8 @@ class Refresh : Action() {
                             when (result) {
                                 is Success -> oldState.copy(pageNumber = nextPage,
                                         data = HasData(result.data),
-                                        isRefresh = false)
+                                        isRefresh = false,
+                                        hasMore = true)
                                 is LastData -> oldState.copy(pageNumber = nextPage,
                                         data = HasData(result.data),
                                         isRefresh = false,
