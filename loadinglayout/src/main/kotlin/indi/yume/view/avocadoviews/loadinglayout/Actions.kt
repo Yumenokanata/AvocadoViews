@@ -6,33 +6,33 @@ import io.reactivex.Observable
  * Created by yume on 17-4-20.
  */
 
-sealed class Action {
-    abstract fun effect(realWorld: RealWorld, oldState: LoadingState): Observable<LoadingState>
+interface Action {
+    fun effect(realWorld: RealWorld, oldState: LoadingState): Observable<LoadingState>
 }
 
-object EmptyAction : Action() {
+object EmptyAction : Action {
     override fun effect(realWorld: RealWorld, oldState: LoadingState): Observable<LoadingState> =
             Observable.empty()
 }
 
-object RenderAction : Action() {
+object RenderAction : Action {
     override fun effect(realWorld: RealWorld, oldState: LoadingState): Observable<LoadingState> =
             Observable.just(oldState)
 }
 
-data class RestoreAction(val state: LoadingState) : Action() {
+data class RestoreAction(val state: LoadingState) : Action {
     override fun effect(realWorld: RealWorld, oldState: LoadingState): Observable<LoadingState> =
             Observable.just(state)
 }
 
 data class ModifyAction(val firstPageNum: Int = 0,
-                        val enableLoadMore: Boolean = true) : Action() {
+                        val enableLoadMore: Boolean = true) : Action {
     override fun effect(realWorld: RealWorld, oldState: LoadingState): Observable<LoadingState> =
             Observable.just(oldState.copy(firstPageNum = firstPageNum,
                     enableLoadMore = enableLoadMore))
 }
 
-class LoadNext : Action() {
+class LoadNext : Action {
     override fun effect(realWorld: RealWorld, oldState: LoadingState): Observable<LoadingState> {
         val nextPage = oldState.pageNumber + 1
         if (oldState.isLoadingMore || oldState.isRefresh)
@@ -56,11 +56,11 @@ class LoadNext : Action() {
                 is Success -> onSuccess(data, oldState).copy(hasMore = true)
                 is LastData -> onSuccess(data, oldState).copy(hasMore = false)
                 is NoMoreData -> oldState.copy(hasMore = false)
-                is Failure -> oldState
+                is Failure -> oldState.copy(isLoadingMore = false)
             }
 }
 
-class Refresh : Action() {
+class Refresh : Action {
     override fun effect(realWorld: RealWorld, oldState: LoadingState): Observable<LoadingState> {
         val nextPage = oldState.firstPageNum
         if(oldState.isLoadingMore || oldState.isRefresh)
@@ -82,14 +82,14 @@ class Refresh : Action() {
                                         data = NoData,
                                         isRefresh = false,
                                         hasMore = false)
-                                is Failure -> oldState
+                                is Failure -> oldState.copy(isRefresh = false)
                             }
                         }
                         .toObservable())
     }
 }
 
-class ClearData : Action() {
+class ClearData : Action {
     override fun effect(realWorld: RealWorld, oldState: LoadingState): Observable<LoadingState> {
         if(oldState.isLoadingMore || oldState.isRefresh)
             return Observable.empty()

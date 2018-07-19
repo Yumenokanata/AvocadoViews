@@ -9,7 +9,7 @@ import android.widget.AbsListView
  */
 
 class LoadingCore(val loadingLayoutViews: LoadingLayoutViews) {
-    private lateinit var manager: LayoutInitializer
+    lateinit var manager: LayoutInitializer
 
     private val onScrollListener: RecyclerView.OnScrollListener = object: RecyclerView.OnScrollListener() {
         override fun onScrollStateChanged(recyclerView: RecyclerView, scrollState: Int) {
@@ -43,6 +43,8 @@ class LoadingCore(val loadingLayoutViews: LoadingLayoutViews) {
     fun refresh() = manager.store.dispatch(Refresh())
 
     fun clearData() = manager.store.dispatch(ClearData())
+
+    fun dispatch(action: Action) = manager.store.dispatch(action)
 
     private fun render(state: LoadingState) {
         if (!manager.renderOtherView(state)) {
