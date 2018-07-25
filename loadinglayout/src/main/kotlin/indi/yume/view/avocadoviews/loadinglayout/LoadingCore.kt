@@ -105,4 +105,9 @@ class LoadingCore(val loadingLayoutViews: LoadingLayoutViews) {
     fun onDetachedFromWindow() {
         manager.store.unsubscribe()
     }
+
+    companion object {
+        @JvmStatic
+        var enableLog = BuildConfig.DEBUG
+    }
 }

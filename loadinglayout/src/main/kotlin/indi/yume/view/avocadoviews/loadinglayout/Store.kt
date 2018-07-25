@@ -1,6 +1,7 @@
 package indi.yume.view.avocadoviews.loadinglayout
 
 import android.util.Log
+import indi.yume.view.avocadoviews.loadinglayout.LoadingCore.Companion.enableLog
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -29,7 +30,8 @@ class Store(val realWorld: RealWorld, initState: LoadingState = LoadingState.emp
                 { stateData, trunk ->
                     try {
                         val action = trunk(stateData.newState)
-                        Log.d(TAG, "start invoke action: ${action::class.java.simpleName}")
+                        if (enableLog)
+                            Log.d(TAG, "start invoke action: ${action::class.java.simpleName}")
                         val newState = action
                                 .effect(realWorld, stateData.newState)
                                 .doOnNext { render(it) }
@@ -37,21 +39,21 @@ class Store(val realWorld: RealWorld, initState: LoadingState = LoadingState.emp
 
                         StateData(stateData.newState, newState, action)
                     } catch (e: Exception) {
-                        Log.e(TAG, "Deal event error: ", e)
+                        if (enableLog) Log.e(TAG, "Deal event error: ", e)
                         render(stateData.newState)
                         stateData
                     }
                 }
                 .subscribe({ newState -> },
-                        { t -> Log.e(TAG, "Deal event error: ", t) },
-                        { Log.e(TAG, "Loading Store event looper has dead.") })
+                        { t -> if (enableLog) Log.e(TAG, "Deal event error: ", t) },
+                        { if (enableLog) Log.e(TAG, "Loading Store event looper has dead.") })
 
         renderSubject
-                .doOnNext { state -> Log.d(TAG, "current state: ${state}") }
+                .doOnNext { state -> if (enableLog) Log.d(TAG, "current state: ${state}") }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ renderCallback?.invoke(it) },
-                        { t -> Log.e(TAG, "Render state error: ", t) },
-                        { Log.e(TAG, "Loading Store render looper has dead.") })
+                        { t -> if (enableLog) Log.e(TAG, "Render state error: ", t) },
+                        { if (enableLog) Log.e(TAG, "Loading Store render looper has dead.") })
     }
 
     private fun render(state: LoadingState) = renderSubject.onNext(state)
