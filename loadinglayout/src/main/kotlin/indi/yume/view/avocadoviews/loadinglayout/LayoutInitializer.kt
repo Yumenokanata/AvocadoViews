@@ -10,7 +10,7 @@ import io.reactivex.Single
  * Created by yume on 17-4-21.
  */
 data class LayoutInitializer(
-        val store: Store,
+        val store: CoreStore,
         val adapter: RecyclerView.Adapter<*>,
         val layoutManager: RecyclerView.LayoutManager,
         val loadMoreViewShownPred: (RecyclerView, RecyclerView.Adapter<*>) -> Boolean,

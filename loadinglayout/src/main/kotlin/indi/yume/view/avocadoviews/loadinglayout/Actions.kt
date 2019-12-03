@@ -35,7 +35,7 @@ data class ModifyAction(val firstPageNum: Int = 0,
 class LoadNext : Action {
     override fun effect(realWorld: RealWorld, oldState: LoadingState): Observable<LoadingState> {
         val nextPage = oldState.pageNumber + 1
-        if (oldState.isLoadingMore || oldState.isRefresh)
+        if (!oldState.hasMore || oldState.isLoadingMore || oldState.isRefresh)
             return Observable.empty()
 
         return Observable.concat(Observable.just(oldState.copy(isLoadingMore = true)),
@@ -53,14 +53,14 @@ class LoadNext : Action {
     fun LoadingResult<List<*>>.dealResult(oldState: LoadingState,
                                           onSuccess: (List<*>, LoadingState) -> LoadingState): LoadingState =
             when (this) {
-                is Success -> onSuccess(data, oldState).copy(hasMore = true)
-                is LastData -> onSuccess(data, oldState).copy(hasMore = false)
-                is NoMoreData -> oldState.copy(hasMore = false)
-                is Failure -> oldState.copy(isLoadingMore = false)
+                is Success -> onSuccess(data, oldState).copy(hasMore = true, isError = false)
+                is LastData -> onSuccess(data, oldState).copy(hasMore = false, isError = false)
+                is NoMoreData -> oldState.copy(hasMore = false, isError = false)
+                is Failure -> oldState.copy(isLoadingMore = false, isError = true)
             }
 }
 
-class Refresh : Action {
+class Refresh(val firstFailToEmpty: Boolean) : Action {
     override fun effect(realWorld: RealWorld, oldState: LoadingState): Observable<LoadingState> {
         val nextPage = oldState.firstPageNum
         if(oldState.isLoadingMore || oldState.isRefresh)
@@ -73,16 +73,20 @@ class Refresh : Action {
                                 is Success -> oldState.copy(pageNumber = nextPage,
                                         data = HasData(result.data),
                                         isRefresh = false,
-                                        hasMore = true)
+                                        hasMore = true,
+                                        isError = false)
                                 is LastData -> oldState.copy(pageNumber = nextPage,
                                         data = HasData(result.data),
                                         isRefresh = false,
-                                        hasMore = false)
+                                        hasMore = false,
+                                        isError = false)
                                 is NoMoreData -> oldState.copy(
                                         data = NoData,
                                         isRefresh = false,
-                                        hasMore = false)
-                                is Failure -> oldState.copy(isRefresh = false)
+                                        hasMore = false,
+                                        isError = false)
+                                is Failure -> oldState.copy(isRefresh = false, isError = true,
+                                        data = if (firstFailToEmpty && oldState.data is NoData) HasData(emptyList<Any?>()) else oldState.data)
                             }
                         }
                         .toObservable())
@@ -97,6 +101,7 @@ class ClearData : Action {
         return Observable.just(oldState.copy(
                 pageNumber = oldState.firstPageNum,
                 data = NoData,
-                hasMore = true))
+                hasMore = true,
+                isError = false))
     }
 }

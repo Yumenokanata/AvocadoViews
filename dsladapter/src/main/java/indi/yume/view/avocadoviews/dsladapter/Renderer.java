@@ -1,6 +1,7 @@
 package indi.yume.view.avocadoviews.dsladapter;
 
 import android.support.annotation.NonNull;
+import android.support.v7.util.ListUpdateCallback;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
@@ -24,4 +25,7 @@ public interface Renderer<T> {
     void bind(@NonNull T data, int index, RecyclerView.ViewHolder holder);
 
     void recycle(RecyclerView.ViewHolder holder);
+
+    boolean getUpdates(@NonNull final T oldData, @NonNull final T newData,
+                       @NonNull final ListUpdateCallback listUpdateCallback);
 }

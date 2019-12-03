@@ -2,6 +2,8 @@ package indi.yume.view.avocadoviews.loadinglayout;
 
 import org.junit.Test;
 
+import io.reactivex.Observable;
+
 import static org.junit.Assert.*;
 
 /**
@@ -12,6 +14,6 @@ import static org.junit.Assert.*;
 public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() throws Exception {
-        assertEquals(4, 2 + 2);
+//        assertEquals(4, 2 + 2);
     }
 }

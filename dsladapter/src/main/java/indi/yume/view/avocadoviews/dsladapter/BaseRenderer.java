@@ -2,6 +2,7 @@ package indi.yume.view.avocadoviews.dsladapter;
 
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
+import android.support.v7.util.ListUpdateCallback;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -37,5 +38,10 @@ public abstract class BaseRenderer<T> implements Renderer<T> {
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int layoutResourceId) {
         return new RecyclerView.ViewHolder(
                 LayoutInflater.from(parent.getContext()).inflate(layoutResourceId, parent, false)) {};
+    }
+
+    @Override
+    public boolean getUpdates(@NonNull T oldData, @NonNull T newData, @NonNull ListUpdateCallback listUpdateCallback) {
+        return false;
     }
 }

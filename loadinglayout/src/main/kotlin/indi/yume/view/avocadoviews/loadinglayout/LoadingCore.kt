@@ -40,7 +40,8 @@ class LoadingCore(val loadingLayoutViews: LoadingLayoutViews) {
 
     fun loadData() = manager.store.dispatch(LoadNext())
 
-    fun refresh() = manager.store.dispatch(Refresh())
+    fun refresh(firstFailToEmpty: Boolean = loadingLayoutViews.emptyView != null) =
+            manager.store.dispatch(Refresh(firstFailToEmpty))
 
     fun clearData() = manager.store.dispatch(ClearData())
 

@@ -15,13 +15,25 @@ import java.lang.Exception
  */
 typealias ActionTrunk = (LoadingState) -> Action
 
-class Store(val realWorld: RealWorld, initState: LoadingState = LoadingState.empty()) {
+interface CoreStore {
+    var renderCallback: ((LoadingState) -> Unit)?
+
+    fun bind(): Observable<LoadingState>
+
+    fun dispatch(action: Action)
+
+    fun dispatch(trunk: ActionTrunk)
+
+    fun unsubscribe()
+}
+
+class Store(val realWorld: RealWorld, initState: LoadingState = LoadingState.empty()) : CoreStore {
 
     internal val eventSubject = PublishSubject.create<ActionTrunk>()
 
     internal val renderSubject = BehaviorSubject.createDefault(initState).toSerialized()
 
-    var renderCallback: ((LoadingState) -> Unit)? = null
+    override var renderCallback: ((LoadingState) -> Unit)? = null
 
     init {
         eventSubject.toFlowable(BackpressureStrategy.DROP)
@@ -40,7 +52,7 @@ class Store(val realWorld: RealWorld, initState: LoadingState = LoadingState.emp
                         StateData(stateData.newState, newState, action)
                     } catch (e: Exception) {
                         if (enableLog) Log.e(TAG, "Deal event error: ", e)
-                        render(stateData.newState)
+                        render(stateData.newState.copy(isError = true))
                         stateData
                     }
                 }
@@ -58,17 +70,17 @@ class Store(val realWorld: RealWorld, initState: LoadingState = LoadingState.emp
 
     private fun render(state: LoadingState) = renderSubject.onNext(state)
 
-    fun bind(): Observable<LoadingState> = renderSubject
+    override fun bind(): Observable<LoadingState> = renderSubject
 
-    fun dispatch(action: Action) {
+    override fun dispatch(action: Action) {
         eventSubject.onNext { action }
     }
 
-    fun dispatch(trunk: ActionTrunk) {
+    override fun dispatch(trunk: ActionTrunk) {
         eventSubject.onNext(trunk)
     }
 
-    fun unsubscribe() {
+    override fun unsubscribe() {
         eventSubject.onComplete()
         renderSubject.onComplete()
     }

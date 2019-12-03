@@ -14,7 +14,8 @@ data class LoadingState (
         val data: LoadingData<List<*>> = NoData,
         val hasMore: Boolean = true,
         val isRefresh: Boolean = false,
-        val isLoadingMore: Boolean = false
+        val isLoadingMore: Boolean = false,
+        val isError: Boolean = false
 ) {
     companion object {
         fun empty(): LoadingState = LoadingState()

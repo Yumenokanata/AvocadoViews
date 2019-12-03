@@ -10,28 +10,59 @@ import java.util.List;
  */
 public class Functions {
     public static <T1, T2> BiConsumer<T1, T2> nullBiConsumer() {
-        return (t1, t2) -> {};
+        return new BiConsumer<T1, T2>() {
+            @Override
+            public void accept(Object o, Object o2) {}
+        };
     }
 
     public static <T> Consumer<T> nullConsumer() {
-        return t -> {};
+        return new Consumer<T>() {
+            @Override
+            public void accept(@NonNull T t) {}
+        };
     }
 
-    public static <T> Supplier<T> staticSupplier(T data) {
-        return () -> data;
+    public static <T> Supplier<T> staticSupplier(final T data) {
+        return new Supplier<T>() {
+            @Override
+            public T get() {
+                return data;
+            }
+        };
     }
 
-    public static <T, R> Function<T, R> staticFunction(R r) {
-        return t -> r;
+    public static <T, R> Function<T, R> staticFunction(final R r) {
+        return new Function<T, R>() {
+            @NonNull
+            @Override
+            public R apply(@NonNull T t) {
+                return r;
+            }
+        };
     }
 
     public static <T> Function<T, T>  identityFunction() {
-        return t -> t;
+        return new Function<T, T>() {
+
+            @NonNull
+            @Override
+            public T apply(@NonNull T t) {
+                return t;
+            }
+        };
     }
 
     @SuppressWarnings("unchecked")
     @NonNull
     public static <T> Function<T, List<T>> itemAsList() {
-        return Collections::singletonList;
+        return new Function<T, List<T>>() {
+
+            @NonNull
+            @Override
+            public List<T> apply(@NonNull T t) {
+                return Collections.singletonList(t);
+            }
+        };
     }
 }
