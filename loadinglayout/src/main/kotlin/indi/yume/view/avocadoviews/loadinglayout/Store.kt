@@ -1,5 +1,6 @@
 package indi.yume.view.avocadoviews.loadinglayout
 
+import android.annotation.SuppressLint
 import android.util.Log
 import indi.yume.view.avocadoviews.loadinglayout.LoadingCore.Companion.enableLog
 import io.reactivex.BackpressureStrategy
@@ -13,7 +14,6 @@ import java.lang.Exception
 /**
  * Created by yume on 17-4-20.
  */
-typealias ActionTrunk = (LoadingState) -> Action
 
 interface CoreStore {
     var renderCallback: ((LoadingState) -> Unit)?
@@ -22,26 +22,24 @@ interface CoreStore {
 
     fun dispatch(action: Action)
 
-    fun dispatch(trunk: ActionTrunk)
-
     fun unsubscribe()
 }
 
+@SuppressLint("CheckResult")
 class Store(val realWorld: RealWorld, initState: LoadingState = LoadingState.empty()) : CoreStore {
 
-    internal val eventSubject = PublishSubject.create<ActionTrunk>()
+    internal val eventSubject = PublishSubject.create<Action>()
 
     internal val renderSubject = BehaviorSubject.createDefault(initState).toSerialized()
 
     override var renderCallback: ((LoadingState) -> Unit)? = null
 
     init {
-        eventSubject.toFlowable(BackpressureStrategy.DROP)
-                .observeOn(NewThreadScheduler())
+        eventSubject.toFlowable(BackpressureStrategy.LATEST)
+                .observeOn(NewThreadScheduler(), false, 1)
                 .scan<StateData>(StateData(initState, initState, EmptyAction))
-                { stateData, trunk ->
+                { stateData, action ->
                     try {
-                        val action = trunk(stateData.newState)
                         if (enableLog)
                             Log.d(TAG, "start invoke action: ${action::class.java.simpleName}")
                         val newState = action
@@ -73,11 +71,7 @@ class Store(val realWorld: RealWorld, initState: LoadingState = LoadingState.emp
     override fun bind(): Observable<LoadingState> = renderSubject
 
     override fun dispatch(action: Action) {
-        eventSubject.onNext { action }
-    }
-
-    override fun dispatch(trunk: ActionTrunk) {
-        eventSubject.onNext(trunk)
+        eventSubject.onNext(action)
     }
 
     override fun unsubscribe() {
